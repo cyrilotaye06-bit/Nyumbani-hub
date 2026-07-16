@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyumbani Hub - Agents</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Roboto',sans-serif;
+    }
+
+    body{
+      background:#f5f7fa;
+      color:#222;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    header{
+      background:#0b1c39;
+      color:white;
+      padding:20px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:1000;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:700;
+      color:#ffd700;
+    }
+
+    nav a{
+      margin-left:25px;
+      font-weight:500;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      color:#ffd700;
+    }
+
+    .hero{
+      height:50vh;
+      background:
+      linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+      url('https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1600&auto=format&fit=crop');
+      background-size:cover;
+      background-position:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:white;
+      padding:20px;
+    }
+
+    .hero-content h1{
+      font-size:48px;
+      margin-bottom:15px;
+    }
+
+    .hero-content p{
+      font-size:18px;
+      margin-bottom:25px;
+    }
+
+    section{
+      padding:80px 8%;
+    }
+
+    .section-title{
+      text-align:center;
+      margin-bottom:50px;
+    }
+
+    .section-title h2{
+      font-size:36px;
+      color:#0b1c39;
+    }
+
+    .agents{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:30px;
+    }
+
+    .agent-card{
+      background:white;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      text-align:center;
+      padding:30px 20px;
+      transition:0.3s;
+    }
+
+    .agent-card:hover{
+      transform:translateY(-8px);
+    }
+
+    .agent-card img{
+      width:150px;
+      height:150px;
+      border-radius:50%;
+      object-fit:cover;
+      margin-bottom:20px;
+      border:4px solid #f5f7fa;
+    }
+
+    .agent-info h3{
+      color:#0b1c39;
+      margin-bottom:5px;
+    }
+
+    .agent-info p{
+      color:#666;
+      font-size:14px;
+      margin-bottom:15px;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#0b1c39;
+      color:white;
+      padding:10px 20px;
+      border-radius:8px;
+      transition:0.3s;
+      font-size:14px;
+    }
+
+    .btn:hover{
+      background:#ffd700;
+      color:#000;
+    }
+
+    footer{
+      background:#09152c;
+      color:white;
+      padding:40px 8%;
+      text-align:center;
+    }
+
+    footer p{
+      margin-top:10px;
+      color:#bbb;
+    }
+
+    @media(max-width:768px){
+      .hero-content h1{
+        font-size:32px;
+      }
+      nav{
+        display:none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Nyumbani Hub</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="rentals.html">Rentals</a>
+      <a href="property.html">Buy Property</a>
+      <a href="bnb.html">BnB</a>
+      <a href="resales.html">Resales</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Contact Us</h1>
+      <p>We are here to help with your property needs.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>Get in Touch</h2>
+    </div>
+
+    <div class="agents">
+      <div class="agent-card">
+        <div class="agent-info">
+          <h3>Email</h3>
+          <p>info@nyumbanihub.com</p>
+          <a href="mailto:info@nyumbanihub.com" class="btn">Send Email</a>
+        </div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-info">
+          <h3>Phone</h3>
+          <p>+254 700 000 000</p>
+          <a href="tel:+254700000000" class="btn">Call Now</a>
+        </div>
+      </div>
+
+      <div class="agent-card">
+        <div class="agent-info">
+          <h3>Location</h3>
+          <p>Westlands CBD, Nairobi</p>
+          <a href="index.html" class="btn">Visit Site</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <h2>Nyumbani Hub</h2>
+    <p>Rent • Buy • Resell • Stay</p>
+    <p>© 2026 Nyumbani Hub. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>
