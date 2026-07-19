@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyumbani Hub - Resales</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Roboto',sans-serif;
+    }
+
+    body{
+      background:#f5f7fa;
+      color:#222;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    header{
+      background:#0b1c39;
+      color:white;
+      padding:20px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:1000;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:700;
+      color:#ffd700;
+    }
+
+    nav a{
+      margin-left:25px;
+      font-weight:500;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      color:#ffd700;
+    }
+
+    .hero{
+      height:70vh;
+      background:
+      linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+      url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1600&auto=format&fit=crop');
+      background-size:cover;
+      background-position:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:white;
+      padding:20px;
+    }
+
+    .hero-content h1{
+      font-size:48px;
+      margin-bottom:15px;
+    }
+
+    .hero-content p{
+      font-size:18px;
+      margin-bottom:25px;
+    }
+
+    section{
+      padding:80px 8%;
+    }
+
+    .section-title{
+      text-align:center;
+      margin-bottom:50px;
+    }
+
+    .section-title h2{
+      font-size:36px;
+      color:#0b1c39;
+    }
+
+    .properties{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:30px;
+    }
+
+    .property-card{
+      background:white;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      transition:0.3s;
+    }
+
+    .property-card:hover{
+      transform:translateY(-8px);
+    }
+
+    .property-card img{
+      width:100%;
+      height:240px;
+      object-fit:cover;
+    }
+
+    .property-info{
+      padding:20px;
+    }
+
+    .property-info h3{
+      margin-bottom:10px;
+      color:#0b1c39;
+    }
+
+    .property-info p{
+      color:#666;
+      margin-bottom:10px;
+      font-size:14px;
+    }
+
+    .price{
+      color:#0b1c39;
+      font-size:22px;
+      font-weight:700;
+      margin-bottom:15px;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#0b1c39;
+      color:white;
+      padding:12px 20px;
+      border-radius:8px;
+      transition:0.3s;
+    }
+
+    .btn:hover{
+      background:#ffd700;
+      color:#000;
+    }
+
+    footer{
+      background:#09152c;
+      color:white;
+      padding:40px 8%;
+      text-align:center;
+    }
+
+    footer p{
+      margin-top:10px;
+      color:#bbb;
+    }
+
+    @media(max-width:768px){
+      .hero-content h1{
+        font-size:32px;
+      }
+      nav{
+        display:none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Nyumbani Hub</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="rentals.html">Rentals</a>
+      <a href="property.html">Buy Property</a>
+      <a href="bnb.html">BnB</a>
+      <a href="resales.html">Resales</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Resale Properties</h1>
+      <p>Find great deals on pre-owned homes and apartments.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">
+      <h2>Recent Resales</h2>
+    </div>
+
+    <div class="properties" id="resales-properties">
+      <!-- Properties will be loaded dynamically -->
+    </div>
+  </section>
+
+  <script>
+    async function loadResaleProperties() {
+      const container = document.getElementById('resales-properties');
+      container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Loading Resales...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3000/api/properties?category=Resale');
+        if (!response.ok) throw new Error('Failed to fetch properties');
+        
+        const properties = await response.json();
+        
+        if (properties.length === 0) {
+          container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No resale properties available at the moment.</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        
+        properties.forEach(property => {
+          const imageUrl = property.image_path;
+          let imageHtml = imageUrl ? `<img src="http://localhost:3000${imageUrl}" alt="${property.title}">` : '';
+          
+          container.innerHTML += `
+            <div class="property-card">
+              ${imageHtml}
+              <div class="property-info">
+                <h3>${property.title}</h3>
+                <p>${property.location}</p>
+                <div class="price">KES ${property.price.toLocaleString()}</div>
+                <p>${property.bedrooms} Beds | ${property.bathrooms} Baths</p>
+                <a href="property.html?id=${property.id}" class="btn">View Details</a>
+              </div>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error loading properties. Please try again later.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadResaleProperties);
+  </script>
+
+  <footer>
+    <h2>Nyumbani Hub</h2>
+    <p>Rent • Buy • Resell • Stay</p>
+    <p>© 2026 Nyumbani Hub. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>

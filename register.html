@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nyumbani Hub - Create Account</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Raleway',sans-serif;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+background:
+linear-gradient(
+rgba(0,0,0,.55),
+rgba(0,0,0,.55)
+),
+url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1600');
+background-size:cover;
+background-position:center;
+}
+
+.container{
+width:100%;
+max-width:550px;
+}
+
+.card{
+
+background:#fff;
+
+padding:40px;
+
+border-radius:20px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.2);
+
+}
+
+.logo{
+
+font-family:'Lora',serif;
+
+font-size:34px;
+
+font-weight:700;
+
+color:#0B1C39;
+
+text-align:center;
+
+margin-bottom:10px;
+
+}
+
+.subtitle{
+
+text-align:center;
+
+color:#666;
+
+margin-bottom:30px;
+
+}
+
+.form-group{
+
+margin-bottom:18px;
+
+}
+
+label{
+
+display:block;
+
+margin-bottom:8px;
+
+font-weight:500;
+
+}
+
+input{
+
+width:100%;
+
+padding:14px;
+
+border:1px solid #ddd;
+
+border-radius:10px;
+
+font-size:15px;
+
+}
+
+input:focus{
+
+outline:none;
+
+border-color:#0B1C39;
+
+}
+
+.checkbox{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+margin-top:10px;
+
+}
+
+.checkbox input{
+
+width:auto;
+
+}
+
+button{
+
+width:100%;
+
+padding:15px;
+
+background:#0B1C39;
+
+color:white;
+
+border:none;
+
+border-radius:10px;
+
+font-size:16px;
+
+font-weight:600;
+
+cursor:pointer;
+
+transition:.3s;
+
+margin-top:15px;
+
+}
+
+button:hover{
+
+background:#173a74;
+
+}
+
+.error{
+
+background:#ffe6e6;
+
+color:#c40000;
+
+padding:12px;
+
+border-radius:8px;
+
+margin-bottom:15px;
+
+display:none;
+
+}
+
+.success{
+
+background:#e8ffea;
+
+color:#008f25;
+
+padding:12px;
+
+border-radius:8px;
+
+margin-bottom:15px;
+
+display:none;
+
+}
+
+.links{
+
+margin-top:20px;
+
+text-align:center;
+
+}
+
+.links a{
+
+color:#0B1C39;
+
+font-weight:600;
+
+text-decoration:none;
+
+}
+
+.links a:hover{
+
+text-decoration:underline;
+
+}
+
+.password-strength{
+
+margin-top:8px;
+
+font-size:13px;
+
+font-weight:600;
+
+}
+
+.weak{
+color:red;
+}
+
+.medium{
+color:orange;
+}
+
+.strong{
+color:green;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="logo">
+Nyumbani Hub
+</div>
+
+<p class="subtitle">
+Create your account to access Rentals, BnB, Resales and Property Purchases
+</p>
+
+<div id="errorBox" class="error"></div>
+
+<div id="successBox" class="success"></div>
+
+<div id="verificationPanel" style="display:none; margin-bottom:20px; padding:15px; background:#f8f8f8; border-radius:10px;">
+  <h3 style="margin-bottom:8px; color:#0B1C39;">Verify Your Email</h3>
+  <p id="verificationMessage" style="margin-bottom:10px; color:#555;">Enter the 6-digit code sent to your email.</p>
+  <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" style="margin-bottom:10px;" />
+  <button type="button" id="verifyBtn" style="margin-top:0;">Verify Email</button>
+  <button type="button" id="resendBtn" style="margin-top:10px; background:#173a74;">Resend Code</button>
+</div>
+
+<form id="registerForm">
+
+<div class="form-group">
+
+<label>Full Name</label>
+
+<input
+type="text"
+id="fullName"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Email Address</label>
+
+<input
+type="email"
+id="email"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Phone Number</label>
+
+<input
+type="tel"
+id="phone"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>Password</label>
+
+<input
+type="password"
+id="password"
+required>
+
+<div
+id="passwordStrength"
+class="password-strength">
+</div>
+
+</div>
+
+<div class="form-group">
+
+<label>Confirm Password</label>
+
+<input
+type="password"
+id="confirmPassword"
+required>
+
+</div>
+
+<div class="checkbox">
+
+<input
+type="checkbox"
+id="terms"
+required>
+
+<label for="terms">
+
+I agree to the Terms and Conditions
+
+</label>
+
+</div>
+
+<button type="submit">
+
+Create Account
+
+</button>
+
+</form>
+
+<div class="links">
+
+<p>
+
+Already have an account?
+
+<a href="login.html">
+
+Login
+
+</a>
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// =====================================
+// CONFIG
+// =====================================
+
+const API_URL = "http://localhost:3000/api";
+let pendingEmail = '';
+let pendingUser = null;
+
+// =====================================
+// PASSWORD STRENGTH
+// =====================================
+
+const passwordField =
+document.getElementById(
+"password"
+);
+
+const strength =
+document.getElementById(
+"passwordStrength"
+);
+
+passwordField.addEventListener(
+"input",
+()=>{
+
+const value =
+passwordField.value;
+
+if(value.length < 6){
+
+strength.innerHTML =
+"Weak Password";
+
+strength.className =
+"password-strength weak";
+
+}
+else if(value.length < 10){
+
+strength.innerHTML =
+"Medium Password";
+
+strength.className =
+"password-strength medium";
+
+}
+else{
+
+strength.innerHTML =
+"Strong Password";
+
+strength.className =
+"password-strength strong";
+
+}
+
+});
+
+// =====================================
+// REGISTER
+// =====================================
+
+document.getElementById(
+"registerForm"
+)
+
+.addEventListener(
+"submit",
+async function(e){
+
+e.preventDefault();
+
+const fullName =
+document.getElementById(
+"fullName"
+).value;
+
+const email =
+document.getElementById(
+"email"
+).value;
+
+const phone =
+document.getElementById(
+"phone"
+).value;
+
+const password =
+document.getElementById(
+"password"
+).value;
+
+const confirmPassword =
+document.getElementById(
+"confirmPassword"
+).value;
+
+const errorBox =
+document.getElementById(
+"errorBox"
+);
+
+const successBox =
+document.getElementById(
+"successBox"
+);
+
+errorBox.style.display =
+"none";
+
+successBox.style.display =
+"none";
+
+// Password Match
+
+if(password !== confirmPassword){
+
+errorBox.innerHTML =
+"Passwords do not match";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+try{
+
+const response =
+await fetch(
+
+`${API_URL}/auth/user/register`,
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify({
+
+full_name:fullName,
+
+email:email,
+
+phone:phone,
+
+password:password
+
+})
+
+}
+
+);
+
+const data =
+await response.json();
+
+if(response.ok){
+
+pendingEmail = email;
+pendingUser = data.user;
+
+successBox.innerHTML = data.message || "Verification code sent to your email.";
+successBox.style.display = "block";
+
+const verificationPanel = document.getElementById('verificationPanel');
+verificationPanel.style.display = 'block';
+
+const registerForm = document.getElementById('registerForm');
+registerForm.style.display = 'none';
+
+}
+else{
+
+errorBox.innerHTML = data.error ||
+"Registration Failed";
+
+errorBox.style.display =
+"block";
+
+}
+
+}
+catch(error){
+
+console.error(error);
+
+errorBox.innerHTML =
+"Unable to connect to server";
+
+errorBox.style.display =
+"block";
+
+}
+
+});
+
+async function verifyEmail() {
+  const code = document.getElementById('verificationCode').value;
+  const errorBox = document.getElementById('errorBox');
+  const successBox = document.getElementById('successBox');
+
+  if (!pendingEmail || !code) {
+    errorBox.innerHTML = 'Please enter the verification code.';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/auth/user/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingEmail, code })
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      localStorage.setItem('userToken', data.token);
+      localStorage.setItem('userAccount', JSON.stringify(data.user));
+      successBox.innerHTML = 'Email verified successfully. You can now log in.';
+      successBox.style.display = 'block';
+      setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+    } else {
+      errorBox.innerHTML = data.error || 'Verification failed';
+      errorBox.style.display = 'block';
+    }
+  } catch (error) {
+    console.error(error);
+    errorBox.innerHTML = 'Unable to verify email';
+    errorBox.style.display = 'block';
+  }
+}
+
+async function resendVerification() {
+  const errorBox = document.getElementById('errorBox');
+  const successBox = document.getElementById('successBox');
+  if (!pendingEmail) return;
+
+  try {
+    const response = await fetch(`${API_URL}/auth/user/resend-verification`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingEmail })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      successBox.innerHTML = data.message || 'Verification code resent.';
+      successBox.style.display = 'block';
+    } else {
+      errorBox.innerHTML = data.error || 'Unable to resend code';
+      errorBox.style.display = 'block';
+    }
+  } catch (error) {
+    console.error(error);
+    errorBox.innerHTML = 'Unable to resend verification code';
+    errorBox.style.display = 'block';
+  }
+}
+
+document.getElementById('verifyBtn').addEventListener('click', verifyEmail);
+document.getElementById('resendBtn').addEventListener('click', resendVerification);
+
+// =====================================
+// AUTO REDIRECT
+// =====================================
+
+const currentUser =
+localStorage.getItem(
+"userToken"
+);
+
+if(currentUser){
+
+window.location.href =
+"index.html";
+
+}
+
+</script>
+
+<script>
+  window.location.replace('index.html');
+</script>
+</body>
+</html>

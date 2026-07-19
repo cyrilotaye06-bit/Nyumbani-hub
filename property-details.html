@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyumbani Hub - Property Details</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+  <!-- FontAwesome for icons (Heart, Beds, Baths, etc.) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Roboto',sans-serif;
+    }
+
+    body{
+      background:#f5f7fa;
+      color:#222;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    header{
+      background:#0b1c39;
+      color:white;
+      padding:20px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:1000;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:700;
+      color:#ffd700;
+    }
+
+    nav a{
+      margin-left:25px;
+      font-weight:500;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      color:#ffd700;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* Back Button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #0b1c39;
+      font-weight: 600;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+    .back-btn:hover {
+      color: #ffd700;
+      transform: translateX(-5px);
+    }
+
+    /* Layout grid */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+    }
+
+    /* Left Column: Image, Info, Specs, Description */
+    .main-content {
+      background: white;
+      border-radius: 14px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .image-gallery {
+      position: relative;
+      width: 100%;
+      height: 480px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 25px;
+      background: #eaeaea;
+    }
+
+    .gallery-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .gallery-img.active {
+      display: block;
+    }
+
+    .gallery-thumbnails {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 1px 10px;
+      margin: -12px 0 20px;
+    }
+
+    .gallery-thumbnail {
+      flex: 0 0 78px;
+      height: 58px;
+      padding: 0;
+      border: 2px solid transparent;
+      border-radius: 7px;
+      overflow: hidden;
+      background: #eaeaea;
+      cursor: pointer;
+    }
+
+    .gallery-thumbnail.active {
+      border-color: #ffd700;
+    }
+
+    .gallery-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Gallery controls */
+    .gallery-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(11, 28, 57, 0.7);
+      color: white;
+      border: none;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+    .gallery-btn:hover {
+      background: #ffd700;
+      color: #0b1c39;
+    }
+    .gallery-prev { left: 15px; }
+    .gallery-next { right: 15px; }
+
+    /* Title Block */
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .title-block h1 {
+      font-size: 32px;
+      color: #0b1c39;
+      margin-bottom: 5px;
+    }
+
+    .title-block p {
+      color: #666;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .price-favorite {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .price {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0b1c39;
+    }
+
+    .favorite-btn {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 10px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      color: #555;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
+    .favorite-btn:hover {
+      background: #f8f9fa;
+      border-color: #ff4d4d;
+      color: #ff4d4d;
+    }
+    .favorite-btn.active {
+      background: #fff0f0;
+      border-color: #ff4d4d;
+      color: #ff4d4d;
+    }
+
+    /* Badges */
+    .badges-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-category {
+      background: #0b1c39;
+      color: white;
+    }
+
+    .badge-status {
+      background: #e1f5fe;
+      color: #0288d1;
+    }
+
+    .badge-furnished {
+      background: #efebe9;
+      color: #5d4037;
+    }
+
+    /* Specs Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      padding: 20px 0;
+      border-top: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 25px;
+    }
+
+    .specs-grid .spec-item {
+      text-align: center;
+    }
+
+    .specs-grid .spec-item i {
+      font-size: 22px;
+      color: #0b1c39;
+      margin-bottom: 8px;
+    }
+
+    .specs-grid .spec-label {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 2px;
+    }
+
+    .specs-grid .spec-val {
+      font-weight: 600;
+      font-size: 15px;
+      color: #222;
+    }
+
+    /* Description */
+    .description-section h3 {
+      font-size: 22px;
+      color: #0b1c39;
+      margin-bottom: 15px;
+    }
+
+    .description-section p {
+      color: #555;
+      line-height: 1.8;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+
+    /* Sidebar */
+    .sidebar-content {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    /* Inquiry Form */
+    .inquiry-card {
+      background: white;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .inquiry-card h3 {
+      font-size: 20px;
+      color: #0b1c39;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #0b1c39;
+    }
+
+    .form-group textarea {
+      height: 100px;
+      resize: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: #0b1c39;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .submit-btn:hover {
+      background: #ffd700;
+      color: #0b1c39;
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+    }
+    .alert-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .alert-error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    footer{
+      background:#09152c;
+      color:white;
+      padding:60px 8% 30px;
+      margin-top: 60px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 40px;
+    }
+    .footer-col h3 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .footer-col p {
+      color: #bbb;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    .footer-col a {
+      display: block;
+      color: #bbb;
+      margin-bottom: 12px;
+      transition: 0.3s;
+    }
+    .footer-col a:hover {
+      color: white;
+      padding-left: 5px;
+    }
+    .footer-bottom {
+      text-align: center;
+      color: #bbb;
+    }
+
+    @media(max-width:992px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+      .image-gallery {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Nyumbani Hub</div>
+    <nav id="main-nav">
+      <a href="index.html">Home</a>
+      <a href="rentals.html">Rentals</a>
+      <a href="property.html">Buy Property</a>
+      <a href="bnb.html">BnB</a>
+      <a href="resales.html">Resales</a>
+      <a href="agents.html">Agents</a>
+      <a href="favorites.html">Favorites</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Back button -->
+    <a href="#" onclick="history.back(); return false;" class="back-btn">
+      <i class="fa-solid fa-arrow-left"></i> Back to listings
+    </a>
+
+    <!-- Detail Layout Grid -->
+    <div class="detail-grid">
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Image Gallery -->
+        <div class="image-gallery" id="galleryContainer">
+          <p style="text-align:center; padding-top:220px; color:#666;">Loading property images...</p>
+        </div>
+        <div id="galleryThumbnails" class="gallery-thumbnails" aria-label="Property image thumbnails"></div>
+
+        <!-- Title Block -->
+        <div class="title-row">
+          <div class="title-block">
+            <h1 id="propTitle">Property Title</h1>
+            <p id="propLocation"><i class="fa-solid fa-location-dot"></i> Property Location</p>
+          </div>
+          <div class="price-favorite">
+            <div class="price" id="propPrice">KES 0</div>
+            <button class="favorite-btn" id="favoriteBtn">
+              <i class="fa-regular fa-heart"></i> <span id="favText">Save Property</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Badges Row -->
+        <div class="badges-row">
+          <span class="badge badge-category" id="badgeCategory">Category</span>
+          <span class="badge badge-status" id="badgeStatus">Available</span>
+          <span class="badge badge-furnished" id="badgeFurnished">Furnished: No</span>
+        </div>
+
+        <!-- Specs Grid -->
+        <div class="specs-grid">
+          <div class="spec-item">
+            <i class="fa-solid fa-bed"></i>
+            <div class="spec-label">Bedrooms</div>
+            <div class="spec-val" id="specBeds">0</div>
+          </div>
+          <div class="spec-item">
+            <i class="fa-solid fa-bath"></i>
+            <div class="spec-label">Bathrooms</div>
+            <div class="spec-val" id="specBaths">0</div>
+          </div>
+          <div class="spec-item">
+            <i class="fa-solid fa-car"></i>
+            <div class="spec-label">Parking</div>
+            <div class="spec-val" id="specParking">0</div>
+          </div>
+          <div class="spec-item">
+            <i class="fa-solid fa-ruler-combined"></i>
+            <div class="spec-label">Area (Sq Ft)</div>
+            <div class="spec-val" id="specSize">N/A</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="description-section">
+          <h3>Description</h3>
+          <p id="propDescription">No description provided.</p>
+        </div>
+
+        <div class="description-section" id="amenitiesSection" style="display:none;">
+          <h3>Features & Amenities</h3>
+          <p id="propAmenities"></p>
+        </div>
+
+        <div class="description-section" id="tourSection" style="display:none;">
+          <h3>Explore the Property</h3>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+            <a id="mapLink" class="submit-btn" target="_blank" rel="noopener"><i class="fa-solid fa-map-location-dot"></i> Open Map</a>
+            <a id="videoLink" class="submit-btn" target="_blank" rel="noopener" style="display:none;"><i class="fa-solid fa-play"></i> Video Tour</a>
+            <a id="floorPlanLink" class="submit-btn" target="_blank" rel="noopener" style="display:none;"><i class="fa-solid fa-file-lines"></i> Floor Plan</a>
+          </div>
+        </div>
+        <div class="description-section" id="availabilitySection" style="display:none;">
+          <h3>BnB Availability</h3><p id="availabilityText">Checking available dates...</p>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-content">
+        <!-- Inquiry Form -->
+        <div class="inquiry-card">
+          <h3>Request More Info</h3>
+          <div class="alert alert-success" id="inquirySuccess">Inquiry sent successfully! Our agent will contact you soon.</div>
+          <div class="alert alert-error" id="inquiryError">Error sending inquiry. Please try again.</div>
+          
+          <form id="inquiryForm">
+            <div class="form-group">
+              <label for="inqName">Your Name</label>
+              <input type="text" id="inqName" required />
+            </div>
+            <div class="form-group">
+              <label for="inqEmail">Your Email</label>
+              <input type="email" id="inqEmail" required />
+            </div>
+            <div class="form-group">
+              <label for="inqPhone">Phone Number</label>
+              <input type="tel" id="inqPhone" />
+            </div>
+            <div class="form-group">
+              <label for="inqMessage">Message</label>
+              <textarea id="inqMessage" required>I am interested in this property and would like to arrange a viewing or receive more details. Please contact me.</textarea>
+            </div>
+            <button type="submit" class="submit-btn" id="inqSubmitBtn">
+              <i class="fa-solid fa-paper-plane"></i> Send Inquiry
+            </button>
+          </form>
+          <a id="whatsappLink" class="submit-btn" target="_blank" rel="noopener" style="display:block; text-align:center; margin-top:12px; background:#25D366;"><i class="fa-brands fa-whatsapp"></i> Chat on WhatsApp</a>
+        </div>
+
+        <div class="inquiry-card">
+          <h3>Book a Viewing</h3>
+          <p style="color:#64748b; margin-bottom:14px;">Choose a convenient time and our team will confirm it.</p>
+          <form id="viewingForm">
+            <div class="form-group"><label for="viewName">Your Name</label><input id="viewName" required></div>
+            <div class="form-group"><label for="viewEmail">Your Email</label><input id="viewEmail" type="email" required></div>
+            <div class="form-group"><label for="viewPhone">Phone Number</label><input id="viewPhone" type="tel"></div>
+            <div class="form-group"><label for="viewDate">Preferred Date</label><input id="viewDate" type="date" required></div>
+            <div class="form-group"><label for="viewTime">Preferred Time</label><input id="viewTime" type="time" required></div>
+            <div class="form-group"><label for="viewingNotes">Notes for the agent (optional)</label><textarea id="viewingNotes" placeholder="Anything the agent should know before the viewing"></textarea></div>
+            <button type="submit" class="submit-btn" id="viewingSubmitBtn"><i class="fa-solid fa-calendar-check"></i> Request Viewing</button>
+            <p id="viewingMessage" style="margin-top:12px; font-weight:600;"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-col">
+        <h3>Nyumbani Hub</h3>
+        <p>Your trusted partner in navigating the modern real estate market. Rent, buy, resell, and stay with confidence.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <a href="index.html">Home</a>
+        <a href="rentals.html">Rentals</a>
+        <a href="property.html">Buy Property</a>
+        <a href="bnb.html">BnB Stays</a>
+      </div>
+      <div class="footer-col">
+        <h3>Legal</h3>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Info</h3>
+        <p>Email: info@nyumbanihub.com</p>
+        <p>Phone: +254 700 000 000</p>
+        <p>Address: Westlands CBD, Nairobi</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Nyumbani Hub. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const API_URL = '/api';
+    const urlParams = new URLSearchParams(window.location.search);
+    const propertyId = urlParams.get('id');
+    const FAVORITES_STORAGE_KEY = 'nyumbaniHubFavorites';
+
+    let currentSlide = 0;
+    let slidesCount = 0;
+    let currentProperty = null;
+
+    function getFavorites() {
+      try {
+        return JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]');
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+    }
+
+    function isFavorite(propertyIdValue) {
+      return getFavorites().some(item => item.id === propertyIdValue);
+    }
+
+    function toggleFavorite(property) {
+      const favorites = getFavorites();
+      const exists = favorites.some(item => item.id === property.id);
+
+      const nextFavorites = exists
+        ? favorites.filter(item => item.id !== property.id)
+        : [
+            ...favorites,
+            {
+              id: property.id,
+              title: property.title,
+              price: property.price,
+              location: property.location,
+              category: property.category,
+              image_path: property.image_paths ? property.image_paths.split(',')[0] : ''
+            }
+          ];
+
+      saveFavorites(nextFavorites);
+      return nextFavorites.some(item => item.id === property.id);
+    }
+
+    function setFavBtnState(isFavorited) {
+      const favBtn = document.getElementById('favoriteBtn');
+      const heartIcon = favBtn.querySelector('i');
+      const favText = document.getElementById('favText');
+      if (isFavorited) {
+        favBtn.classList.add('active');
+        heartIcon.className = 'fa-solid fa-heart';
+        favText.innerText = 'Saved!';
+      } else {
+        favBtn.classList.remove('active');
+        heartIcon.className = 'fa-regular fa-heart';
+        favText.innerText = 'Save Property';
+      }
+    }
+
+    function getUserToken() { return localStorage.getItem('userToken'); }
+
+    async function syncFavorite(property, saved) {
+      const token = getUserToken();
+      if (!token) return;
+      await fetch(`${API_URL}/favorites/${property.id}`, {
+        method: saved ? 'POST' : 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (propertyId) {
+        loadPropertyDetails();
+      } else {
+        document.querySelector('.container').innerHTML = '<h2 style="text-align:center; padding: 100px 0;">No Property Specified.</h2>';
+      }
+    });
+
+    async function loadPropertyDetails() {
+      try {
+        const response = await fetch(`${API_URL}/properties/${propertyId}`);
+        if (!response.ok) throw new Error('Failed to load property details');
+        
+        const data = await response.json();
+        const property = data[0];
+
+        if (!property) {
+          document.querySelector('.container').innerHTML = '<h2 style="text-align:center; padding: 100px 0;">Property not found.</h2>';
+          return;
+        }
+
+        currentProperty = property;
+        try {
+          const key = 'nyumbaniHubRecentlyViewed';
+          const previous = JSON.parse(localStorage.getItem(key) || '[]').filter(item => item.id !== property.id);
+          localStorage.setItem(key, JSON.stringify([{ id: property.id, title: property.title, location: property.location, price: property.price }, ...previous].slice(0, 8)));
+        } catch (_) {}
+
+        document.getElementById('propTitle').innerText = property.title;
+        document.getElementById('propLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${property.location || 'N/A'}`;
+        document.getElementById('propPrice').innerText = `KES ${property.price.toLocaleString()}`;
+        document.getElementById('badgeCategory').innerText = property.category;
+        document.getElementById('badgeStatus').innerText = property.status || 'Available';
+        document.getElementById('badgeFurnished').innerText = `Furnished: ${property.furnished || 'No'}`;
+        if (Number(property.verified)) document.getElementById('badgeStatus').innerText = 'Verified listing';
+        
+        document.getElementById('specBeds').innerText = property.bedrooms || 0;
+        document.getElementById('specBaths').innerText = property.bathrooms || 0;
+        document.getElementById('specParking').innerText = property.parking_spaces || 0;
+        document.getElementById('specSize').innerText = property.property_size || 'N/A';
+        
+        document.getElementById('propDescription').innerText = property.description || 'No description provided.';
+        const amenities = (property.amenities || '').trim();
+        if (amenities) {
+          document.getElementById('amenitiesSection').style.display = 'block';
+          document.getElementById('propAmenities').innerText = amenities;
+        }
+        const mapLink = document.getElementById('mapLink');
+        mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(property.address || property.location || property.title)}`;
+        if (property.video_url) { document.getElementById('videoLink').href = property.video_url; document.getElementById('videoLink').style.display = 'inline-block'; }
+        if (property.floor_plan_url) { document.getElementById('floorPlanLink').href = property.floor_plan_url; document.getElementById('floorPlanLink').style.display = 'inline-block'; }
+        document.getElementById('tourSection').style.display = 'block';
+        if (property.category === 'BnB') {
+          const section = document.getElementById('availabilitySection'); section.style.display = 'block';
+          fetch(`${API_URL}/properties/${property.id}/availability`).then(r => r.json()).then(dates => {
+            const unavailable = dates.filter(item => !Number(item.is_available)).map(item => new Date(item.available_date).toLocaleDateString());
+            document.getElementById('availabilityText').textContent = unavailable.length ? `Unavailable on: ${unavailable.join(', ')}.` : 'This stay is currently available. Contact us to confirm your dates.';
+          }).catch(() => document.getElementById('availabilityText').textContent = 'Contact us to confirm your preferred dates.');
+        }
+        const waNumber = (property.agent_phone || '+254713402088').replace(/[^0-9]/g, '');
+        document.getElementById('whatsappLink').href = `https://wa.me/${waNumber}?text=${encodeURIComponent(`Hello, I am interested in ${property.title}.`)}`;
+
+        const galleryContainer = document.getElementById('galleryContainer');
+        const galleryThumbnails = document.getElementById('galleryThumbnails');
+        const images = property.image_paths ? property.image_paths.split(',') : [];
+        
+        if (images.length === 0) {
+          galleryContainer.innerHTML = `<img src="http://localhost:3000/uploads/default.jpg" class="gallery-img active" alt="Default Property Image">`;
+          galleryThumbnails.innerHTML = '';
+        } else {
+          galleryContainer.innerHTML = '';
+          galleryThumbnails.innerHTML = '';
+          images.forEach((img, index) => {
+            const activeClass = index === 0 ? 'active' : '';
+            const imageSrc = `http://localhost:3000${img}`;
+            galleryContainer.innerHTML += `<img src="${imageSrc}" class="gallery-img ${activeClass}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} alt="${property.title} - Image ${index + 1}">`;
+            galleryThumbnails.innerHTML += `<button class="gallery-thumbnail ${activeClass}" type="button" onclick="goToSlide(${index})" aria-label="View image ${index + 1}"><img src="${imageSrc}" loading="lazy" alt=""></button>`;
+          });
+          
+          slidesCount = images.length;
+          if (slidesCount > 1) {
+            galleryContainer.innerHTML += `
+              <button class="gallery-btn gallery-prev" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="gallery-btn gallery-next" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+            `;
+          }
+        }
+
+        setFavBtnState(isFavorite(property.id));
+      } catch (err) {
+        console.error(err);
+        document.querySelector('.container').innerHTML = '<h2 style="text-align:center; padding: 100px 0; color:red;">Error loading property.</h2>';
+      }
+    }
+
+    function nextSlide() {
+      goToSlide((currentSlide + 1) % slidesCount);
+    }
+
+    function prevSlide() {
+      goToSlide((currentSlide - 1 + slidesCount) % slidesCount);
+    }
+
+    function goToSlide(index) {
+      const slides = document.querySelectorAll('.gallery-img');
+      const thumbnails = document.querySelectorAll('.gallery-thumbnail');
+      if (!slides.length || index < 0 || index >= slides.length) return;
+      slides[currentSlide].classList.remove('active');
+      thumbnails[currentSlide]?.classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+      thumbnails[currentSlide]?.classList.add('active');
+      thumbnails[currentSlide]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
+    document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const inqSuccess = document.getElementById('inquirySuccess');
+      const inqError = document.getElementById('inquiryError');
+      const submitBtn = document.getElementById('inqSubmitBtn');
+      
+      inqSuccess.style.display = 'none';
+      inqError.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
+      const payload = {
+        property_id: propertyId,
+        customer_name: document.getElementById('inqName').value,
+        customer_email: document.getElementById('inqEmail').value,
+        customer_phone: document.getElementById('inqPhone').value,
+        message: document.getElementById('inqMessage').value
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/inquiries`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          inqSuccess.style.display = 'block';
+          document.getElementById('inquiryForm').reset();
+        } else {
+          throw new Error('Server error');
+        }
+      } catch (err) {
+        console.error(err);
+        inqError.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Inquiry';
+      }
+    });
+
+    document.getElementById('favoriteBtn').addEventListener('click', () => {
+      if (!currentProperty) {
+        alert('Property details are still loading.');
+        return;
+      }
+
+      const isNowFavorite = toggleFavorite(currentProperty);
+      setFavBtnState(isNowFavorite);
+      syncFavorite(currentProperty, isNowFavorite).catch(() => {});
+    });
+
+    document.getElementById('viewingForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const button = document.getElementById('viewingSubmitBtn');
+      const message = document.getElementById('viewingMessage');
+      button.disabled = true; button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...'; message.textContent = '';
+      try {
+        const response = await fetch(`${API_URL}/viewings`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ property_id: propertyId, customer_name: document.getElementById('viewName').value,
+            customer_email: document.getElementById('viewEmail').value, customer_phone: document.getElementById('viewPhone').value,
+            viewing_date: document.getElementById('viewDate').value, viewing_time: document.getElementById('viewTime').value,
+            notes: document.getElementById('viewingNotes').value })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Unable to book a viewing.');
+        document.getElementById('viewingForm').reset(); message.style.color = '#15803d'; message.textContent = data.message;
+      } catch (error) { message.style.color = '#b91c1c'; message.textContent = error.message; }
+      finally { button.disabled = false; button.innerHTML = '<i class="fa-solid fa-calendar-check"></i> Request Viewing'; }
+    });
+  </script>
+</body>
+</html>

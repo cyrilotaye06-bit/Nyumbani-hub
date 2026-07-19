@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reply to Nyumbani Hub</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; font-family: Arial, sans-serif; background: #f1f5f9; color: #0b1c39; }
+    main { width: min(100%, 620px); background: #fff; padding: 36px; border-radius: 16px; box-shadow: 0 12px 32px rgba(15, 23, 42, .12); }
+    h1 { margin-top: 0; } p { line-height: 1.6; color: #475569; }
+    textarea { width: 100%; min-height: 160px; resize: vertical; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+    button { margin-top: 14px; border: 0; border-radius: 8px; padding: 12px 18px; background: #0b1c39; color: white; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .65; cursor: wait; } #message { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Reply to Nyumbani Hub</h1>
+    <p id="context">Loading your inquiry…</p>
+    <form id="replyForm" hidden>
+      <label for="replyMessage">Your message</label>
+      <textarea id="replyMessage" required placeholder="Write your reply here..."></textarea>
+      <button type="submit" id="submitButton">Send Reply</button>
+    </form>
+    <p id="message"></p>
+  </main>
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token');
+    const context = document.getElementById('context');
+    const form = document.getElementById('replyForm');
+    const message = document.getElementById('message');
+
+    async function openReplyLink() {
+      if (!token) { context.textContent = 'This reply link is incomplete.'; return; }
+      try {
+        const response = await fetch(`/api/client-replies/${encodeURIComponent(token)}`);
+        const inquiry = await response.json();
+        if (!response.ok) throw new Error(inquiry.error);
+        context.textContent = `Hello ${inquiry.customer_name || 'there'}, reply to the Nyumbani Hub team${inquiry.property_title ? ` about “${inquiry.property_title}”` : ''}.`;
+        form.hidden = false;
+      } catch (error) { context.textContent = error.message || 'This reply link is no longer available.'; }
+    }
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = document.getElementById('submitButton');
+      button.disabled = true; button.textContent = 'Sending…'; message.textContent = '';
+      try {
+        const response = await fetch(`/api/client-replies/${encodeURIComponent(token)}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: document.getElementById('replyMessage').value })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        form.hidden = true; message.style.color = '#15803d'; message.textContent = data.message;
+      } catch (error) { message.style.color = '#b91c1c'; message.textContent = error.message || 'Unable to send your reply.'; }
+      finally { button.disabled = false; button.textContent = 'Send Reply'; }
+    });
+    openReplyLink();
+  </script>
+</body>
+</html>

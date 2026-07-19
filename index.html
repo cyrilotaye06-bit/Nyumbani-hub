@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nyumbani Hub</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Roboto',sans-serif;
+    }
+
+    body{
+      background:#f5f7fa;
+      color:#222;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    header{
+      background:#0b1c39;
+      color:white;
+      padding:20px 8%;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:sticky;
+      top:0;
+      z-index:1000;
+    }
+
+    .logo{
+      font-size:28px;
+      font-weight:700;
+      color:#ffd700;
+    }
+
+    nav a{
+      margin-left:25px;
+      font-weight:500;
+      transition:0.3s;
+    }
+
+    nav a:hover{
+      color:#ffd700;
+    }
+
+    .hero{
+      height:90vh;
+      background:
+      linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+      url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1600&auto=format&fit=crop');
+      background-size:cover;
+      background-position:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:white;
+      padding:20px;
+    }
+
+    .hero-content h1{
+      font-size:60px;
+      margin-bottom:20px;
+    }
+
+    .hero-content p{
+      font-size:20px;
+      margin-bottom:30px;
+    }
+
+    .search-box{
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+      justify-content:center;
+      max-width:1000px;
+      margin:auto;
+    }
+
+    .search-box input,
+    .search-box select{
+      padding:14px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      min-width:200px;
+      outline:none;
+    }
+
+    .search-box button{
+      background:#0b1c39;
+      color:white;
+      border:none;
+      padding:14px 30px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:0.3s;
+      font-weight:600;
+    }
+
+    .search-box button:hover{
+      background:#ffd700;
+      color:#000;
+    }
+
+    section{
+      padding:80px 8%;
+    }
+    
+    .bg-light {
+      background: #eef2f6;
+    }
+
+    .section-title{
+      text-align:center;
+      margin-bottom:50px;
+    }
+
+    .section-title h2{
+      font-size:40px;
+      color:#0b1c39;
+      margin-bottom:15px;
+    }
+    
+    .section-title p {
+      color: #666;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .properties{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:30px;
+    }
+
+    .property-card{
+      background:white;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      transition:0.3s;
+    }
+
+    .property-card:hover{
+      transform:translateY(-8px);
+    }
+
+    .property-card img{
+      width:100%;
+      height:220px;
+      object-fit:cover;
+    }
+
+    .property-info{
+      padding:20px;
+    }
+
+    .property-info h3{
+      margin-bottom:10px;
+      color:#0b1c39;
+    }
+
+    .property-info p{
+      color:#666;
+      margin-bottom:10px;
+      font-size:14px;
+    }
+
+    .price{
+      color:#0b1c39;
+      font-size:22px;
+      font-weight:700;
+      margin-bottom:15px;
+    }
+
+    .btn{
+      display:inline-block;
+      background:#0b1c39;
+      color:white;
+      padding:12px 20px;
+      border-radius:8px;
+      transition:0.3s;
+    }
+
+    .btn:hover{
+      background:#ffd700;
+      color:#000;
+    }
+
+    .quick-actions,
+    .contact-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:center;
+      margin-top:24px;
+    }
+
+    .contact-actions{ justify-content:flex-start; margin-top:16px; }
+    .quick-actions .btn,
+    .contact-actions .btn{
+      min-width:150px;
+      text-align:center;
+    }
+
+    .services{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:30px;
+      text-align:center;
+    }
+
+    .service-box{
+      background:white;
+      padding:40px 25px;
+      border-radius:14px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.08);
+      transition:0.3s;
+    }
+    
+    .service-box:hover {
+      transform: translateY(-5px);
+      box-shadow:0 10px 20px rgba(0,0,0,0.12);
+    }
+
+    .service-box h3{
+      margin:20px 0 15px;
+      color:#0b1c39;
+    }
+
+    /* New Sections Styles */
+    .about-section {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 50px;
+    }
+    .about-text {
+      flex: 1 1 400px;
+    }
+    .about-text h3 {
+      font-size: 32px;
+      margin-bottom: 20px;
+      color: #0b1c39;
+    }
+    .about-text p {
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    .about-image {
+      flex: 1 1 400px;
+    }
+    .about-image img {
+      width: 100%;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .testimonial-card {
+      background: white;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      text-align: center;
+      position: relative;
+    }
+    .testimonial-card p {
+      font-style: italic;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .testimonial-card h4 {
+      color: #0b1c39;
+    }
+    .testimonial-card span {
+      color: #ffd700;
+      font-size: 20px;
+    }
+
+    .cta{
+      background:#0b1c39;
+      color:white;
+      text-align:center;
+      border-radius:20px;
+      padding:70px 20px;
+    }
+
+    .cta h2{
+      font-size:42px;
+      margin-bottom:20px;
+    }
+
+    .cta p{
+      margin-bottom:30px;
+      font-size:18px;
+    }
+
+    footer{
+      background:#09152c;
+      color:white;
+      padding:60px 8% 30px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 40px;
+    }
+    .footer-col h3 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .footer-col p {
+      color: #bbb;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    .footer-col a {
+      display: block;
+      color: #bbb;
+      margin-bottom: 12px;
+      transition: 0.3s;
+    }
+    .footer-col a:hover {
+      color: white;
+      padding-left: 5px;
+    }
+    .footer-bottom {
+      text-align: center;
+      color: #bbb;
+    }
+
+    @media(max-width:768px){
+      .hero-content h1{
+        font-size:38px;
+      }
+      nav{
+        display:none;
+      }
+      .search-box{
+        flex-direction:column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Nyumbani Hub</div>
+
+    <nav id="main-nav">
+      <a href="index.html">Home</a>
+      <a href="rentals.html">Rentals</a>
+      <a href="property.html">Buy Property</a>
+      <a href="bnb.html">BnB</a>
+      <a href="resales.html">Resales</a>
+      <a href="agents.html">Agents</a>
+      <a href="tools.html">Tools</a>
+      <a href="favorites.html">Favorites</a>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 id="hero-title">Find Your Dream Property</h1>
+      <p id="hero-subtitle">Rent, Buy, Resell & Book Luxury Apartments and Homes</p>
+
+      <form id="home-search-form" class="search-box">
+        <input id="search-keyword" type="text" placeholder="Location or keyword">
+        
+        <select id="search-property-type">
+          <option value="">Property Type</option>
+          <option value="Apartment">Apartment</option>
+          <option value="House">House</option>
+          <option value="BnB">BnB</option>
+          <option value="Villa">Villa</option>
+        </select>
+
+        <select id="search-bedrooms">
+          <option value="">Bedrooms</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4+">4+</option>
+        </select>
+
+        <select id="search-purpose">
+          <option value="">Purpose</option>
+          <option value="Rent">Rent</option>
+          <option value="Buy">Buy</option>
+          <option value="Short Stay">Short Stay</option>
+        </select>
+
+        <select id="search-price-range">
+          <option value="">Price Range (KES)</option>
+          <option value="0-100000">KES 50,000 - KES 100,000</option>
+          <option value="100000-300000">KES 100,000 - KES 300,000</option>
+          <option value="300000+">KES 300,000+</option>
+        </select>
+
+        <button type="submit">Search</button>
+        <button type="button" id="save-search-btn" style="background:#fff; color:#0b1c39;">Save Search</button>
+      </form>
+      <p id="saved-search-message" style="margin-top:10px; font-weight:600;"></p>
+
+      <div class="quick-actions">
+        <a href="tel:+254713402088" class="btn">Call Now</a>
+        <a href="https://wa.me/254713402088?text=Hello%20Nyumbani%20Hub%2C%20I%20would%20like%20to%20inquire%20about%20a%20property." target="_blank" rel="noopener" class="btn">WhatsApp Us</a>
+        <a href="mailto:nyumbanihubkenya@gmail.com?subject=Property%20Inquiry" class="btn">Email Us</a>
+      </div>
+
+      <div class="inquiry-card" style="margin-top: 24px; max-width: 720px; background: rgba(255,255,255,0.95); padding: 24px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);">
+        <h3 style="margin-bottom: 12px; color: #0b1c39;">Make an Inquiry</h3>
+        <p style="margin-bottom: 16px; color: #4b5563;">Send your details and the team will follow up with you directly.</p>
+        <form id="homepageInquiryForm">
+          <div style="display:grid; gap:12px;">
+            <input type="text" id="homeInqName" placeholder="Your name" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <input type="email" id="homeInqEmail" placeholder="Your email" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <input type="tel" id="homeInqPhone" placeholder="Phone number" style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <textarea id="homeInqMessage" rows="4" placeholder="Tell us what you are looking for" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
+            <button type="submit" class="btn" style="width: auto;">Send Inquiry</button>
+            <p id="homeInquiryMessage" style="display:none; color:#0b1c39; font-weight:600;"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+  
+  <!-- ABOUT US SECTION -->
+  <section class="bg-light">
+    <div class="about-section">
+      <div class="about-image">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=800&auto=format&fit=crop" alt="Our Team">
+      </div>
+      <div class="about-text">
+        <h3 id="about-title">Who We Are</h3>
+        <div id="about-text-container">
+          <p>At Nyumbani Hub, we believe that finding the perfect property should be a seamless and enjoyable experience. Founded with a vision to redefine real estate in the region, we bring decades of combined local expertise to help you navigate the housing market.</p>
+          <p>Whether you're a first-time homebuyer, a seasoned investor, or someone looking for a luxurious weekend getaway in our BnBs, our dedicated team is committed to delivering excellence, transparency, and outstanding service every step of the way.</p>
+        </div>
+        <a href="#contact" class="btn">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section>
+    <div class="section-title">
+      <h2>Why Choose Nyumbani Hub</h2>
+      <p>Trusted guidance, verified listings, and local expertise to make every move easier.</p>
+    </div>
+
+    <div class="why-us-grid">
+      <div class="why-us-card">
+        <h3>Verified Listings</h3>
+        <p>Every property is reviewed to help you avoid surprises and make confident decisions.</p>
+      </div>
+      <div class="why-us-card">
+        <h3>Fast Response</h3>
+        <p>Our team responds quickly so you can book viewings, ask questions, and move forward without delays.</p>
+      </div>
+      <div class="why-us-card">
+        <h3>Local Expertise</h3>
+        <p>We know the neighborhoods, the pricing trends, and the best opportunities in the market.</p>
+      </div>
+      <div class="why-us-card">
+        <h3>End-to-End Support</h3>
+        <p>From search to paperwork, we guide you through every step with clarity and care.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEIGHBORHOOD GUIDE -->
+  <section class="bg-light">
+    <div class="section-title">
+      <h2>Explore Popular Neighborhoods</h2>
+      <p>Find homes and rentals in some of the most desirable areas around Nairobi and beyond.</p>
+    </div>
+
+    <div class="neighborhood-grid">
+      <div class="neighborhood-card">
+        <h3>Westlands</h3>
+        <p>Perfect for professionals, with great access to offices, dining, and nightlife.</p>
+      </div>
+      <div class="neighborhood-card">
+        <h3>Runda</h3>
+        <p>Known for secure living, premium homes, and a calm, upscale environment.</p>
+      </div>
+      <div class="neighborhood-card">
+        <h3>Kilimani</h3>
+        <p>Ideal for buyers and renters looking for vibrant city life and convenience.</p>
+      </div>
+      <div class="neighborhood-card">
+        <h3>Mombasa</h3>
+        <p>Great for beachside rentals, short stays, and vacation-ready properties.</p>
+      </div>
+    </div>
+
+    <div class="map-placeholder" style="margin-top: 24px;">
+      <strong>Neighborhood map preview</strong><br>
+      Interactive maps and area insights can be added here for a richer browsing experience.
+    </div>
+  </section>
+
+  <!-- MARKET UPDATES -->
+  <section>
+    <div class="section-title">
+      <h2>Market Updates</h2>
+      <p>Stay informed with practical property news, pricing trends, and helpful tips.</p>
+    </div>
+
+    <div class="market-grid">
+      <div class="market-card">
+        <h3>Rental Demand Rising</h3>
+        <p>Demand for well-located rentals continues to grow as families seek better convenience and value.</p>
+      </div>
+      <div class="market-card">
+        <h3>Prime Locations Still Competitive</h3>
+        <p>Properties near business hubs and lifestyle amenities remain highly sought after by buyers.</p>
+      </div>
+      <div class="market-card">
+        <h3>Short Stays Are Growing</h3>
+        <p>More travelers are choosing serviced apartments and BnBs for flexible, comfortable stays.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="bg-light">
+    <div class="newsletter-box">
+      <h2>Get Property Updates</h2>
+      <p>Subscribe for curated listings, market news, and exclusive opportunities.</p>
+      <form id="newsletter-form">
+        <input type="email" id="newsletter-email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
+      <p class="newsletter-message" id="newsletter-message"></p>
+    </div>
+  </section>
+
+  <!-- FEATURED PROPERTIES -->
+  <section>
+    <div class="section-title">
+      <h2>Featured Listings</h2>
+      <p>Explore some of our most exclusive and highly sought-after properties currently available on the market.</p>
+    </div>
+
+    <div class="properties" id="featured-properties">
+      <!-- Properties will be loaded dynamically -->
+    </div>
+    <div id="compare-bar" style="display:none; position:sticky; bottom:18px; margin:24px auto 0; max-width:720px; padding:14px 18px; background:#0b1c39; color:white; border-radius:12px; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,.2);"></div>
+  </section>
+
+  <script>
+    function getPropertyLink(property) {
+      if (property.category === 'Rental') return 'rentals.html';
+      if (property.category === 'BnB') return 'bnb.html';
+      if (property.category === 'Resale') return 'resales.html';
+      return 'property.html';
+    }
+
+    function matchesPriceRange(price, range) {
+      if (!range) return true;
+      const value = Number(price) || 0;
+      if (range === '300000+') return value >= 300000;
+      const [min, max] = range.split('-').map(Number);
+      return value >= min && value <= max;
+    }
+
+    function filterProperties(properties, filters) {
+      const keyword = (filters.keyword || '').trim().toLowerCase();
+      const propertyType = (filters.propertyType || '').trim().toLowerCase();
+      const bedrooms = filters.bedrooms;
+      const purpose = (filters.purpose || '').trim().toLowerCase();
+      const priceRange = filters.priceRange;
+
+      return properties.filter(property => {
+        const title = (property.title || '').toLowerCase();
+        const location = (property.location || '').toLowerCase();
+        const description = (property.description || '').toLowerCase();
+        const category = (property.category || '').toLowerCase();
+        const propertyTypeText = (property.property_type || property.type || '').toLowerCase();
+        const bedroomCount = Number(property.bedrooms) || 0;
+        const price = Number(property.price) || 0;
+        const searchableText = `${title} ${location} ${description} ${category} ${propertyTypeText}`.toLowerCase();
+
+        const matchesKeyword = !keyword || searchableText.includes(keyword);
+        const matchesType = !propertyType || searchableText.includes(propertyType) || category.includes(propertyType) || propertyTypeText.includes(propertyType);
+        const matchesBedrooms = !bedrooms || (bedrooms === '4+' ? bedroomCount >= 4 : bedroomCount === Number(bedrooms));
+
+        let matchesPurpose = true;
+        if (purpose) {
+          if (purpose === 'rent') matchesPurpose = category === 'rental';
+          else if (purpose === 'buy') matchesPurpose = category === 'sale' || category === 'resale';
+          else if (purpose === 'short stay') matchesPurpose = category === 'bnb';
+        }
+
+        return matchesKeyword && matchesType && matchesBedrooms && matchesPurpose && matchesPriceRange(price, priceRange);
+      });
+    }
+
+    let comparisonProperties = [];
+    function updateComparisonBar() {
+      const bar = document.getElementById('compare-bar');
+      if (!comparisonProperties.length) { bar.style.display = 'none'; return; }
+      bar.style.display = 'block';
+      bar.innerHTML = `${comparisonProperties.length} selected for comparison <button onclick="showComparison()" style="margin-left:10px; padding:8px 12px;">Compare</button> <button onclick="clearComparison()" style="margin-left:6px; padding:8px 12px;">Clear</button>`;
+    }
+    function toggleComparison(property) {
+      const existing = comparisonProperties.findIndex(item => item.id === property.id);
+      if (existing >= 0) comparisonProperties.splice(existing, 1);
+      else if (comparisonProperties.length < 3) comparisonProperties.push(property);
+      else { alert('You can compare up to three properties at a time.'); return; }
+      updateComparisonBar();
+    }
+    function clearComparison() { comparisonProperties = []; document.querySelectorAll('.compare-checkbox').forEach(input => input.checked = false); updateComparisonBar(); }
+    function showComparison() {
+      if (comparisonProperties.length < 2) { alert('Select at least two properties to compare.'); return; }
+      const rows = [['Price', p => `KES ${Number(p.price || 0).toLocaleString()}`], ['Location', p => p.location || '—'], ['Beds', p => p.bedrooms || '—'], ['Baths', p => p.bathrooms || '—'], ['Furnished', p => p.furnished || 'No'], ['Type', p => p.property_type || p.category || '—']];
+      const popup = window.open('', 'property-comparison', 'width=900,height=650');
+      popup.document.write(`<title>Nyumbani Hub Property Comparison</title><style>body{font-family:Arial;padding:28px;color:#0b1c39}table{border-collapse:collapse;width:100%}th,td{border:1px solid #dbe2ea;padding:12px;text-align:left}th{background:#0b1c39;color:white}</style><h1>Compare Properties</h1><table><tr><th>Feature</th>${comparisonProperties.map(p => `<th>${p.title}</th>`).join('')}</tr>${rows.map(([label, value]) => `<tr><td><strong>${label}</strong></td>${comparisonProperties.map(p => `<td>${value(p)}</td>`).join('')}</tr>`).join('')}</table>`);
+      popup.document.close();
+    }
+
+    async function loadFeaturedProperties(filters = {}) {
+      const container = document.getElementById('featured-properties');
+      container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Loading properties...</p>';
+      
+      try {
+        const response = await fetch('/api/properties');
+        if (!response.ok) throw new Error('Failed to fetch properties');
+        
+        const properties = await response.json();
+        const filteredProperties = filterProperties(properties, filters);
+        
+        container.innerHTML = '';
+
+        if (filteredProperties.length === 0) {
+          const hasActiveFilters = Object.values(filters).some(value => String(value || '').trim() !== '');
+          const message = hasActiveFilters
+            ? 'No matching properties found. Try different keywords, property type, bedrooms, purpose, or price range.'
+            : 'No properties are available right now. Please check back soon.';
+          container.innerHTML = `<p style="grid-column: 1 / -1; text-align: center;">${message}</p>`;
+          return;
+        }
+
+        const summary = Object.values(filters).some(value => String(value || '').trim() !== '')
+          ? `<p style="grid-column: 1 / -1; text-align: center; margin-bottom: 16px; color: #0b1c39;">Showing ${filteredProperties.length} matching property${filteredProperties.length === 1 ? '' : 'ies'}.</p>`
+          : '';
+        container.innerHTML = summary;
+        
+        filteredProperties.slice(0, 6).forEach(property => {
+          const imagePaths = property.image_paths ? property.image_paths.split(',') : [];
+          const imageUrl = imagePaths[0];
+          const linkPage = `property-details.html?id=${property.id}`;
+          const normalizedImageUrl = imageUrl
+            ? (imageUrl.startsWith('http') ? imageUrl : imageUrl.startsWith('/') ? imageUrl : `/uploads/${imageUrl}`)
+            : '';
+          const imageHtml = normalizedImageUrl ? `<img src="${normalizedImageUrl}" alt="${property.title}">` : '';
+          
+          container.innerHTML += `
+            <div class="property-card">
+              ${imageHtml}
+              <div class="property-info">
+                <h3>${property.title}</h3>
+                <p>${property.location}</p>
+                <div class="price">KES ${Number(property.price || 0).toLocaleString()}</div>
+                <a href="${linkPage}" class="btn">View Property</a>
+                <label style="display:block; margin-top:12px; color:#475569;"><input class="compare-checkbox" type="checkbox" onchange='toggleComparison(${JSON.stringify(property).replace(/'/g, '&#39;')})'> Compare</label>
+              </div>
+            </div>
+          `;
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error loading properties. Please try again later.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchForm = document.getElementById('home-search-form');
+      if (searchForm) {
+        searchForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          loadFeaturedProperties({
+            keyword: document.getElementById('search-keyword').value,
+            propertyType: document.getElementById('search-property-type').value,
+            bedrooms: document.getElementById('search-bedrooms').value,
+            purpose: document.getElementById('search-purpose').value,
+            priceRange: document.getElementById('search-price-range').value
+          });
+        });
+      }
+
+      document.getElementById('save-search-btn').addEventListener('click', async () => {
+        const message = document.getElementById('saved-search-message');
+        const token = localStorage.getItem('userToken');
+        if (!token) { message.style.color = '#fff'; message.textContent = 'Sign in to save searches and receive matching-listing alerts.'; return; }
+        const filters = { keyword: document.getElementById('search-keyword').value, propertyType: document.getElementById('search-property-type').value, bedrooms: document.getElementById('search-bedrooms').value, purpose: document.getElementById('search-purpose').value, priceRange: document.getElementById('search-price-range').value };
+        const name = window.prompt('Name this saved search:', filters.keyword || 'My property search');
+        if (!name) return;
+        try {
+          const response = await fetch('/api/saved-searches', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ name, filters, alerts_enabled: true }) });
+          const data = await response.json(); if (!response.ok) throw new Error(data.error);
+          message.style.color = '#fff'; message.textContent = 'Search saved. You will receive alerts once email notifications are configured.';
+        } catch (error) { message.style.color = '#fee2e2'; message.textContent = error.message || 'Could not save search.'; }
+      });
+
+      const homepageInquiryForm = document.getElementById('homepageInquiryForm');
+      if (homepageInquiryForm) {
+        homepageInquiryForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const messageBox = document.getElementById('homeInquiryMessage');
+          const submitBtn = homepageInquiryForm.querySelector('button[type="submit"]');
+          messageBox.style.display = 'none';
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+
+          try {
+            const response = await fetch('/api/inquiries', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customer_name: document.getElementById('homeInqName').value,
+                customer_email: document.getElementById('homeInqEmail').value,
+                customer_phone: document.getElementById('homeInqPhone').value,
+                message: document.getElementById('homeInqMessage').value
+              })
+            });
+
+            if (!response.ok) throw new Error('Failed to send inquiry');
+            homepageInquiryForm.reset();
+            messageBox.textContent = 'Inquiry sent successfully. We will get back to you shortly.';
+            messageBox.style.display = 'block';
+          } catch (error) {
+            console.error(error);
+            messageBox.textContent = 'Could not send your inquiry right now. Please try again later.';
+            messageBox.style.display = 'block';
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Inquiry';
+          }
+        });
+      }
+
+      loadFeaturedProperties();
+    });
+  </script>
+
+  <!-- SERVICES -->
+  <section class="bg-light">
+    <div class="section-title">
+      <h2>What We Offer</h2>
+      <p>Comprehensive real estate solutions tailored to your unique needs.</p>
+    </div>
+
+    <div class="services">
+
+      <div class="service-box">
+        <h3>House Rentals</h3>
+        <p>Browse verified apartments and rental homes across Kenya with flexible lease terms and premium support.</p>
+      </div>
+
+      <div class="service-box">
+        <h3>Property Purchase</h3>
+        <p>Buy houses, land, apartments and investment properties. We guide you through the entire legal process.</p>
+      </div>
+
+      <div class="service-box">
+        <h3>BnB Listings</h3>
+        <p>Find premium short-stay apartments and vacation homes for your business trips or weekend getaways.</p>
+      </div>
+
+      <div class="service-box">
+        <h3>Apartment Resales</h3>
+        <p>Resell and discover apartments from verified sellers. Maximize your return on investment with our team.</p>
+      </div>
+
+    </div>
+  </section>
+  
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="section-title">
+      <h2>What Our Clients Say</h2>
+      <p>Don't just take our word for it. Hear from families and investors we've helped.</p>
+    </div>
+    
+    <div class="testimonials">
+      <div class="testimonial-card">
+        <span>★★★★★</span>
+        <p>"Nyumbani Hub made buying our first home an absolute breeze. Their team was professional, patient, and incredibly knowledgeable about the Nairobi market."</p>
+        <h4>- Sarah & James Ndung'u</h4>
+      </div>
+      <div class="testimonial-card">
+        <span>★★★★★</span>
+        <p>"I regularly book their BnB listings for my business trips to Mombasa. The properties are always impeccably clean, secure, and exactly as advertised."</p>
+        <h4>- Michael Ochieng</h4>
+      </div>
+      <div class="testimonial-card">
+        <span>★★★★★</span>
+        <p>"Selling my apartment through Nyumbani Hub was the best decision. They handled all the marketing, found a buyer within weeks, and sorted the paperwork."</p>
+        <h4>- Amina Hassan</h4>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-light">
+    <div class="cta">
+      <h2>List Your Property With Us</h2>
+      <p>Reach thousands of potential buyers and tenants today. Our team is ready to assist you.</p>
+      <a href="#contact" class="btn">Contact Us</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact">
+    <div class="footer-content">
+      <div class="footer-col">
+        <h3>Nyumbani Hub</h3>
+        <p>Your trusted partner in navigating the modern real estate market. Rent, buy, resell, and stay with confidence.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <a href="index.html">Home</a>
+        <a href="rentals.html">Rentals</a>
+        <a href="property.html">Buy Property</a>
+        <a href="bnb.html">BnB Stays</a>
+      </div>
+      <div class="footer-col">
+        <h3>Legal</h3>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Info</h3>
+        <p id="footer-email">Email: nyumbanihubkenya@gmail.com</p>
+        <p id="footer-phone">Phone: +254713402088</p>
+        <p id="footer-address">Address: Westlands CBD, Nairobi</p>
+        <div class="contact-actions">
+          <a href="tel:+254713402088" class="btn">Call Now</a>
+          <a href="https://wa.me/254713402088?text=Hello%20Nyumbani%20Hub%2C%20I%20would%20like%20to%20inquire%20about%20a%20property." target="_blank" rel="noopener" class="btn">WhatsApp</a>
+          <a href="mailto:nyumbanihubkenya@gmail.com?subject=Property%20Inquiry" class="btn">Email Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Nyumbani Hub. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/254713402088?text=Hello%20Nyumbani%20Hub%2C%20I%20would%20like%20to%20inquire%20about%20a%20property." class="whatsapp-float" target="_blank" rel="noopener">WhatsApp: +254713402088</a>
+
+  <script>
+    async function loadSiteSettings() {
+      try {
+        const response = await fetch('http://localhost:3000/api/settings');
+        if (!response.ok) return;
+        const settings = await response.json();
+        
+        if (settings.hero_title) document.getElementById('hero-title').innerText = settings.hero_title;
+        if (settings.hero_subtitle) document.getElementById('hero-subtitle').innerText = settings.hero_subtitle;
+        if (settings.about_title) document.getElementById('about-title').innerText = settings.about_title;
+        if (settings.about_text) {
+          const paragraphs = settings.about_text.split('\\n').filter(p => p.trim() !== '').map(p => `<p>${p}</p>`).join('');
+          document.getElementById('about-text-container').innerHTML = paragraphs;
+        }
+        if (settings.contact_email) document.getElementById('footer-email').innerText = 'Email: ' + settings.contact_email;
+        if (settings.contact_phone) document.getElementById('footer-phone').innerText = 'Phone: ' + settings.contact_phone;
+        if (settings.contact_address) document.getElementById('footer-address').innerText = 'Address: ' + settings.contact_address;
+
+        const footerEmailLink = document.querySelector('a[href*="mailto:"]');
+        if (footerEmailLink && settings.contact_email) {
+          footerEmailLink.href = `mailto:${settings.contact_email}?subject=${encodeURIComponent('Property Inquiry')}`;
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadSiteSettings);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('newsletter-form');
+      const message = document.getElementById('newsletter-message');
+
+      if (form && message) {
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const email = document.getElementById('newsletter-email').value.trim();
+          if (!email) return;
+          message.textContent = `Thanks ${email}! We will keep you updated with fresh listings.`;
+          form.reset();
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
