@@ -1,16 +1,17 @@
 {
   "name": "charin-realtors",
   "version": "1.0.0",
+  "private": true,
+  "description": "Nyumbani Hub real-estate platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
     "check": "node --check server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
