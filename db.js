@@ -1,16 +1,27 @@
 const sqlite3 = require('sqlite3').verbose();
 const { open } = require('sqlite');
 const path = require('path');
+const fs = require('fs');
 
-const DB_FILE = path.join(__dirname, 'charin_realtors.sqlite');
+const dataDir = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : __dirname;
+const DB_FILE = process.env.DB_PATH ? path.resolve(process.env.DB_PATH) : path.join(dataDir, 'charin_realtors.sqlite');
 let dbPromise = null;
 
 async function getDbConnection() {
     if (!dbPromise) {
-        dbPromise = open({
-            filename: DB_FILE,
-            driver: sqlite3.Database
-        });
+        fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+        dbPromise = open({ filename: DB_FILE, driver: sqlite3.Database })
+            .then(async (conn) => {
+                await conn.exec('PRAGMA foreign_keys = ON;');
+                await conn.exec('PRAGMA journal_mode = WAL;');
+                await conn.exec('PRAGMA synchronous = FULL;');
+                await conn.exec('PRAGMA busy_timeout = 5000;');
+                return conn;
+            })
+            .catch((error) => {
+                dbPromise = null;
+                throw error;
+            });
     }
     return dbPromise;
 }
@@ -23,51 +34,29 @@ async function closeDbConnection() {
     }
 }
 
-// Mocking the mysql2 connection pool interface so we don't have to rewrite everything in server.js right away,
-// but for simplicity we will just export the connection promise.
 module.exports = {
     DB_FILE,
     getConnection: async () => {
         const conn = await getDbConnection();
-        // Return an object that mimics the basic methods used in server.js
         return {
             query: async (sql, params) => {
                 const isSelect = sql.trim().toUpperCase().startsWith('SELECT');
-                if (isSelect) {
-                    const rows = await conn.all(sql, params);
-                    return [rows]; // mysql2 returns [rows, fields]
-                } else {
-                    const result = await conn.run(sql, params);
-                    return [{ insertId: result.lastID }]; 
-                }
+                if (isSelect) return [await conn.all(sql, params)];
+                const result = await conn.run(sql, params);
+                return [{ insertId: result.lastID }];
             },
-            beginTransaction: async () => {
-                await conn.run('BEGIN TRANSACTION');
-            },
-            commit: async () => {
-                await conn.run('COMMIT');
-            },
-            rollback: async () => {
-                await conn.run('ROLLBACK');
-            },
-            release: () => {
-                // SQLite doesn't need to release in the same way, we can just let it be or close it if needed.
-                // For simplicity we do nothing.
-            }
+            beginTransaction: async () => conn.run('BEGIN TRANSACTION'),
+            commit: async () => conn.run('COMMIT'),
+            rollback: async () => conn.run('ROLLBACK'),
+            release: () => {}
         };
     },
     query: async (sql, params) => {
         const conn = await getDbConnection();
-        const isSelect = sql.trim().toUpperCase().startsWith('SELECT') || sql.trim().toUpperCase().startsWith('PRAGMA');
-        if (isSelect) {
-            const rows = await conn.all(sql, params);
-            return [rows];
-        } else {
-            const result = await conn.run(sql, params);
-            return [{ insertId: result.lastID }];
-        }
+        const isSelect = /^(SELECT|PRAGMA)/i.test(sql.trim());
+        if (isSelect) return [await conn.all(sql, params)];
+        const result = await conn.run(sql, params);
+        return [{ insertId: result.lastID }];
     },
-    close: async () => {
-        await closeDbConnection();
-    }
+    close: closeDbConnection
 };

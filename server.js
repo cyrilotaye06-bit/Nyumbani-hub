@@ -64,13 +64,21 @@ async function sendVerificationEmail(email, code) {
     const transporter = nodemailer.createTransport({
         host,
         port,
-        secure,        auth: {
+        secure,
+        auth: {
             user,
             pass
         }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4
     });
 
     try {
+        console.log({
+            host,
+            port,
+            secure,
+            user,
+            hasPassword:  !!pass
+        });
         await transporter.verify();
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>',
@@ -106,13 +114,21 @@ async function sendInquiryReplyEmail(toEmail, customerName, replyMessage, replyU
     const transporter = nodemailer.createTransport({
         host,
         port,
-        secure,        auth: {
+        secure,
+        auth: {
             user,
             pass
         }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4
     });
 
     try {
+        console.log({
+            host,
+            port,
+            secure,
+            user,
+            hasPassword:  !!pass
+        });
         await transporter.verify();
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>',
