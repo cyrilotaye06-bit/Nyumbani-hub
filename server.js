@@ -58,6 +58,9 @@ async function sendVerificationEmail(email, code) {
         ? process.env.EMAIL_SECURE === 'true'
         : port === 465;
 
+    console.log({ host, port, secure, user, hasPassword: !!pass });
+
+
     const transporter = nodemailer.createTransport({
         host,
         port,
@@ -98,6 +101,9 @@ async function sendInquiryReplyEmail(toEmail, customerName, replyMessage, replyU
     const secure = process.env.EMAIL_SECURE !== undefined
         ? process.env.EMAIL_SECURE === 'true'
         : port === 465;
+
+    console.log({ host, port, secure, user, hasPassword: !!pass });
+
 
     const transporter = nodemailer.createTransport({
         host,
@@ -146,6 +152,8 @@ async function sendPropertyAssignmentEmail(agent, property) {
     const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
     const propertyUrl = baseUrl ? baseUrl + '/property-details.html?id=' + property.id : '';
     try {
+        console.log({ host, port, secure, user, hasPassword: !!pass });
+
         const transporter = nodemailer.createTransport({ host, port, secure, requireTLS: true, auth: { user, pass } });
         await transporter.verify();
         await transporter.sendMail({ from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>', to: agent.email, subject: 'New property assignment: ' + property.title, html: '<p>Hello ' + escapeHtml(agent.full_name || 'there') + ',</p><p>You have been assigned to <strong>' + escapeHtml(property.title) + '</strong>.</p><p><strong>Property serial:</strong> ' + escapeHtml(property.property_serial || 'Pending') + '<br><strong>Location:</strong> ' + escapeHtml(property.location || 'Not specified') + '<br><strong>Category:</strong> ' + escapeHtml(property.category || 'Not specified') + '<br><strong>Price:</strong> KES ' + escapeHtml(property.price) + '</p>' + (propertyUrl ? '<p><a href="' + escapeHtml(propertyUrl) + '">View property details</a></p>' : '') + '<p>Nyumbani Hub</p>' });
@@ -168,6 +176,8 @@ async function sendViewingBookingEmail(agent, property, booking) {
     const propertyUrl = baseUrl ? baseUrl + '/property-details.html?id=' + property.id : '';
 
     try {
+        console.log({ host, port, secure, user, hasPassword: !!pass });
+
         const transporter = nodemailer.createTransport({ host, port, secure, requireTLS: true, auth: { user, pass } });
         await transporter.verify();
         await transporter.sendMail({
