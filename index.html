@@ -436,21 +436,7 @@
         <a href="mailto:nyumbanihubkenya@gmail.com?subject=Property%20Inquiry" class="btn">Email Us</a>
       </div>
 
-      <div class="inquiry-card" style="margin-top: 24px; max-width: 720px; background: rgba(255,255,255,0.95); padding: 24px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);">
-        <h3 style="margin-bottom: 12px; color: #0b1c39;">Make an Inquiry</h3>
-        <p style="margin-bottom: 16px; color: #4b5563;">Send your details and the team will follow up with you directly.</p>
-        <form id="homepageInquiryForm">
-          <div style="display:grid; gap:12px;">
-            <input type="text" id="homeInqName" placeholder="Your name" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <input type="email" id="homeInqEmail" placeholder="Your email" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <input type="tel" id="homeInqPhone" placeholder="Phone number" style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <textarea id="homeInqMessage" rows="4" placeholder="Tell us what you are looking for" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
-            <button type="submit" class="btn" style="width: auto;">Send Inquiry</button>
-            <p id="homeInquiryMessage" style="display:none; color:#0b1c39; font-weight:600;"></p>
-          </div>
-        </form>
       </div>
-    </div>
   </section>
   
   <!-- ABOUT US SECTION -->
@@ -576,7 +562,29 @@
       <!-- Properties will be loaded dynamically -->
     </div>
     <div id="compare-bar" style="display:none; position:sticky; bottom:18px; margin:24px auto 0; max-width:720px; padding:14px 18px; background:#0b1c39; color:white; border-radius:12px; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,.2);"></div>
-  </section>
+  
+  <!-- INQUIRY SECTION -->
+  <section class="bg-light">
+    <div class="section-title">
+      <h2>Ready to Find Your Perfect Property?</h2>
+      <p>Fill out the form below and our team will get back to you with personalized recommendations.</p>
+    </div>
+
+    <div class="inquiry-card" style="max-width: 720px; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin: 0 auto;">
+      <h3 style="margin-bottom: 12px; color: #0b1c39; font-size: 24px;">Make an Inquiry</h3>
+      <p style="margin-bottom: 20px; color: #666;">Tell us what you're looking for and we'll help you find the perfect match.</p>
+      <form id="homepageInquiryForm">
+        <div style="display:grid; gap:12px;">
+          <input type="text" id="homeInqName" placeholder="Your name" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+          <input type="email" id="homeInqEmail" placeholder="Your email" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+          <input type="tel" id="homeInqPhone" placeholder="Phone number" style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+          <textarea id="homeInqMessage" rows="4" placeholder="Tell us what you are looking for" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
+          <button type="submit" class="btn" style="width: auto;">Send Inquiry</button>
+          <p id="homeInquiryMessage" style="display:none; color:#0b1c39; font-weight:600;"></p>
+        </div>
+      </form>
+    </div>
+  </section></section>
 
   <script>
     function getPropertyLink(property) {
