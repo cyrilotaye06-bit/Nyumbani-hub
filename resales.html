@@ -93,6 +93,78 @@
       color:#0b1c39;
     }
 
+    .quick-links-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: -12px 0 28px;
+    }
+
+    .quick-link-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #0b1c39;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.25s;
+    }
+
+    .quick-link-btn:hover,
+    .quick-link-btn.active {
+      background: #ffd700;
+      color: #0b1c39;
+    }
+
+    .empty-state {
+      background: white;
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
+    }
+
+    .empty-state h3 {
+      font-size: 24px;
+      color: #0b1c39;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      color: #64748b;
+      margin-bottom: 16px;
+      line-height: 1.7;
+    }
+
+    .org-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .org-card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+    }
+
+    .org-card h3 {
+      color: #0b1c39;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .org-card p {
+      color: #64748b;
+      line-height: 1.6;
+    }
+
     .properties{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -317,171 +389,41 @@
       <h2>Recent Resales</h2>
     </div>
 
-    <div class="filter-panel">
-      <div class="filter-grid">
-        <div class="filter-group">
-          <label for="resale-keyword">Keyword</label>
-          <input id="resale-keyword" type="text" placeholder="Location or amenity" />
-        </div>
-        <div class="filter-group">
-          <label for="resale-bedrooms">Bedrooms</label>
-          <select id="resale-bedrooms">
-            <option value="">Any</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4+">4+</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label for="resale-min-price">Min Price</label>
-          <input id="resale-min-price" type="number" min="0" placeholder="KES" />
-        </div>
-        <div class="filter-group">
-          <label for="resale-max-price">Max Price</label>
-          <input id="resale-max-price" type="number" min="0" placeholder="KES" />
-        </div>
-      </div>
+    <div class="quick-links-bar">
+      <a class="quick-link-btn" href="property.html">Buy</a>
+      <a class="quick-link-btn" href="rentals.html">Rentals</a>
+      <a class="quick-link-btn" href="bnb.html">BnB</a>
+      <a class="quick-link-btn active" data-page="resales" href="resales.html">Resales</a>
+      <a class="quick-link-btn" href="favorites.html">Favorites</a>
     </div>
 
-    <div class="properties" id="resales-properties"></div>
-    <div id="compare-bar" style="display:none; position:sticky; bottom:18px; margin:24px auto 0; max-width:720px; padding:14px 18px; background:#0b1c39; color:white; border-radius:12px; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,.2);"></div>
+    <div class="empty-state">
+      <h3>Resale content has been simplified</h3>
+      <p>This page now focuses on a more organized overview so visitors can navigate quickly without a long list of cards.</p>
+      <a class="btn" href="index.html">Return home</a>
+    </div>
+
+    <div class="org-grid">
+      <div class="org-card">
+        <h3>Explore opportunities</h3>
+        <p>Use the category links above to glide between buy, rent, BnB, and resale content.</p>
+      </div>
+      <div class="org-card">
+        <h3>Ask for guidance</h3>
+        <p>Our team can recommend buyer-friendly or investment-focused options based on your goals.</p>
+      </div>
+      <div class="org-card">
+        <h3>Keep track of favorites</h3>
+        <p>Save promising properties for later and revisit them at any time from favorites.</p>
+      </div>
+    </div>
   </section>
 
   <script>
-    const FAVORITES_STORAGE_KEY = 'nyumbaniHubFavorites';
-    let allResaleProperties = [];
-    let comparisonProperties = [];
-
-    function getFavorites() {
-      try { return JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]'); } catch (err) { return []; }
-    }
-
-    function saveFavorites(favorites) {
-      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-    }
-
-    function isFavorite(propertyId) {
-      return getFavorites().some(item => item.id === propertyId);
-    }
-
-    function toggleFavorite(property) {
-      const favorites = getFavorites();
-      const exists = favorites.some(item => item.id === property.id);
-      const nextFavorites = exists ? favorites.filter(item => item.id !== property.id) : [...favorites, { id: property.id, title: property.title, price: property.price, location: property.location, category: property.category, image_path: property.image_paths ? property.image_paths.split(',')[0] : '' }];
-      saveFavorites(nextFavorites);
-      renderResaleProperties();
-    }
-
-    function getImageUrl(imagePath) {
-      if (!imagePath) return '/uploads/default.jpg';
-      if (/^https?:\/\//i.test(imagePath) || imagePath.startsWith('data:')) return imagePath;
-      if (imagePath.startsWith('/')) return imagePath;
-      return `/uploads/${imagePath.replace(/^uploads\//, '')}`;
-    }
-
-    function filterResaleProperties(properties) {
-      const keyword = document.getElementById('resale-keyword').value.trim().toLowerCase();
-      const bedrooms = document.getElementById('resale-bedrooms').value;
-      const minPrice = Number(document.getElementById('resale-min-price').value || 0);
-      const maxPrice = Number(document.getElementById('resale-max-price').value || Number.MAX_SAFE_INTEGER);
-      return properties.filter(property => {
-        const searchableText = `${property.title || ''} ${property.location || ''} ${property.description || ''} ${property.amenities || ''}`.toLowerCase();
-        const matchesKeyword = !keyword || searchableText.includes(keyword);
-        const bedroomCount = Number(property.bedrooms) || 0;
-        const matchesBedrooms = !bedrooms || (bedrooms === '4+' ? bedroomCount >= 4 : bedroomCount === Number(bedrooms));
-        const price = Number(property.price) || 0;
-        const matchesPrice = price >= minPrice && price <= maxPrice;
-        return matchesKeyword && matchesBedrooms && matchesPrice;
-      });
-    }
-
-    function updateComparisonBar() {
-      const bar = document.getElementById('compare-bar');
-      if (!comparisonProperties.length) { bar.style.display = 'none'; return; }
-      bar.style.display = 'block';
-      bar.innerHTML = `${comparisonProperties.length} selected for comparison <button onclick="showComparison()" style="margin-left:10px; padding:8px 12px; border:none; border-radius:8px; cursor:pointer;">Compare</button> <button onclick="clearComparison()" style="margin-left:6px; padding:8px 12px; border:none; border-radius:8px; cursor:pointer;">Clear</button>`;
-    }
-
-    function clearComparison() { comparisonProperties = []; document.querySelectorAll('.compare-checkbox').forEach(input => input.checked = false); updateComparisonBar(); }
-
-    function showComparison() {
-      if (comparisonProperties.length < 2) { alert('Select at least two properties to compare.'); return; }
-      const rows = [['Price', p => `KES ${Number(p.price || 0).toLocaleString()}`], ['Location', p => p.location || '—'], ['Beds', p => p.bedrooms || '—'], ['Baths', p => p.bathrooms || '—'], ['Furnished', p => p.furnished || 'No'], ['Type', p => p.property_type || p.category || '—']];
-      const popup = window.open('', 'property-comparison', 'width=900,height=650');
-      popup.document.write(`<title>Nyumbani Hub Property Comparison</title><style>body{font-family:Arial;padding:28px;color:#0b1c39}table{border-collapse:collapse;width:100%}th,td{border:1px solid #dbe2ea;padding:12px;text-align:left}th{background:#0b1c39;color:white}</style><h1>Compare Properties</h1><table><tr><th>Feature</th>${comparisonProperties.map(p => `<th>${p.title}</th>`).join('')}</tr>${rows.map(([label, value]) => `<tr><td><strong>${label}</strong></td>${comparisonProperties.map(p => `<td>${value(p)}</td>`).join('')}</tr>`).join('')}</table>`);
-      popup.document.close();
-    }
-
-    function toggleComparison(property) {
-      const existing = comparisonProperties.findIndex(item => item.id === property.id);
-      if (existing >= 0) comparisonProperties.splice(existing, 1);
-      else if (comparisonProperties.length < 3) comparisonProperties.push(property);
-      else { alert('You can compare up to three properties at a time.'); return; }
-      updateComparisonBar();
-    }
-
-    function renderResaleProperties() {
-      const container = document.getElementById('resales-properties');
-      container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Loading Resales...</p>';
-      const filteredProperties = filterResaleProperties(allResaleProperties);
-      if (!filteredProperties.length) {
-        container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No resale properties match your current filters.</p>';
-        updateComparisonBar();
-        return;
-      }
-      container.innerHTML = '';
-      filteredProperties.forEach(property => {
-        const imagePaths = property.image_paths ? property.image_paths.split(',') : [];
-        const imageUrl = getImageUrl(imagePaths[0] || property.image_path);
-        const favoriteActive = isFavorite(property.id) ? 'active' : '';
-        container.innerHTML += `
-          <div class="property-card">
-            <div class="property-image-wrap">
-              <img src="${imageUrl}" alt="${property.title}">
-              <span class="badge">Resale</span>
-            </div>
-            <div class="property-info">
-              <div class="card-top">
-                <h3>${property.title}</h3>
-                <button class="favorite-btn ${favoriteActive}" type="button" onclick="toggleFavorite(${JSON.stringify(property).replace(/'/g, '&#39;')})" aria-label="Save property"><i class="${favoriteActive ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i></button>
-              </div>
-              <p>${property.location}</p>
-              <div class="price">KES ${Number(property.price || 0).toLocaleString()}</div>
-              <div class="meta-row">
-                <span class="meta-chip">${property.bedrooms || 0} Beds</span>
-                <span class="meta-chip">${property.bathrooms || 0} Baths</span>
-                <span class="meta-chip">${property.furnished || 'No'} Furnished</span>
-              </div>
-              <div class="card-actions">
-                <a href="property-details.html?id=${property.id}" class="btn">View Details</a>
-                <label class="compare-pill"><input class="compare-checkbox" type="checkbox" onchange="toggleComparison(${JSON.stringify(property).replace(/'/g, '&#39;')})"> Compare</label>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      updateComparisonBar();
-    }
-
-    async function loadResaleProperties() {
-      try {
-        const response = await fetch('/api/properties?category=Resale');
-        if (!response.ok) throw new Error('Failed to fetch properties');
-        allResaleProperties = await response.json();
-        renderResaleProperties();
-      } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('resales-properties').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Error loading properties. Please try again later.</p>';
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      ['resale-keyword', 'resale-bedrooms', 'resale-min-price', 'resale-max-price'].forEach(id => {
-        document.getElementById(id).addEventListener('input', renderResaleProperties);
-        document.getElementById(id).addEventListener('change', renderResaleProperties);
+      document.querySelectorAll('.quick-link-btn').forEach(link => {
+        link.setAttribute('aria-label', `Open ${link.textContent.trim()}`);
       });
-      loadResaleProperties();
     });
   </script>
 
