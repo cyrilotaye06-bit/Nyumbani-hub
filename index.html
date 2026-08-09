@@ -316,6 +316,58 @@
       font-size:18px;
     }
 
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 18px;
+      margin-top: 12px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      border: 1px solid #e5e7eb;
+    }
+
+    .stat-card h3 {
+      color: #0b1c39;
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .stat-card p {
+      color: #64748b;
+      margin: 0;
+    }
+
+    .recent-section {
+      margin-top: 32px;
+    }
+
+    .back-to-top {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: #0b1c39;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(11, 28, 57, 0.25);
+      display: none;
+      z-index: 1200;
+      font-size: 20px;
+    }
+
+    .back-to-top:hover {
+      background: #ffd700;
+      color: #0b1c39;
+    }
+
     footer{
       background:#09152c;
       color:white;
@@ -572,6 +624,34 @@
       <p>Explore some of our most exclusive and highly sought-after properties currently available on the market.</p>
     </div>
 
+    <div class="bg-light" style="padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <h3 id="stat-total">0</h3>
+          <p>Total listings</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="stat-rental">0</h3>
+          <p>Rental homes</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="stat-sale">0</h3>
+          <p>For sale</p>
+        </div>
+        <div class="stat-card">
+          <h3 id="stat-bnb">0</h3>
+          <p>BnB stays</p>
+        </div>
+      </div>
+      <div class="recent-section" id="recently-viewed-section" style="display:none;">
+        <div class="section-title" style="margin-bottom: 18px;">
+          <h3 style="font-size: 24px; margin-bottom: 6px;">Recently Viewed</h3>
+          <p>Pick up where you left off with properties you explored recently.</p>
+        </div>
+        <div class="properties" id="recently-viewed-properties"></div>
+      </div>
+    </div>
+
     <div class="properties" id="featured-properties">
       <!-- Properties will be loaded dynamically -->
     </div>
@@ -647,6 +727,55 @@
       const popup = window.open('', 'property-comparison', 'width=900,height=650');
       popup.document.write(`<title>Nyumbani Hub Property Comparison</title><style>body{font-family:Arial;padding:28px;color:#0b1c39}table{border-collapse:collapse;width:100%}th,td{border:1px solid #dbe2ea;padding:12px;text-align:left}th{background:#0b1c39;color:white}</style><h1>Compare Properties</h1><table><tr><th>Feature</th>${comparisonProperties.map(p => `<th>${p.title}</th>`).join('')}</tr>${rows.map(([label, value]) => `<tr><td><strong>${label}</strong></td>${comparisonProperties.map(p => `<td>${value(p)}</td>`).join('')}</tr>`).join('')}</table>`);
       popup.document.close();
+    }
+
+    function renderRecentlyViewed() {
+      const section = document.getElementById('recently-viewed-section');
+      const container = document.getElementById('recently-viewed-properties');
+      if (!section || !container) return;
+      try {
+        const recentItems = JSON.parse(localStorage.getItem('nyumbaniHubRecentlyViewed') || '[]');
+        if (!recentItems.length) {
+          section.style.display = 'none';
+          return;
+        }
+        section.style.display = 'block';
+        container.innerHTML = recentItems.map(property => `
+          <div class="property-card">
+            <div class="property-info">
+              <h3>${property.title}</h3>
+              <p>${property.location || 'Location available'}</p>
+              <div class="price">KES ${Number(property.price || 0).toLocaleString()}</div>
+              <a href="property-details.html?id=${property.id}" class="btn">Open</a>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading recent properties:', error);
+      }
+    }
+
+    async function loadPropertyStats() {
+      try {
+        const response = await fetch('/api/properties');
+        if (!response.ok) throw new Error('Failed to fetch property stats');
+        const properties = await response.json();
+        const counts = properties.reduce((acc, property) => {
+          acc.total += 1;
+          const category = (property.category || '').toLowerCase();
+          if (category === 'rental') acc.rental += 1;
+          if (category === 'sale') acc.sale += 1;
+          if (category === 'bnb') acc.bnb += 1;
+          return acc;
+        }, { total: 0, rental: 0, sale: 0, bnb: 0 });
+
+        document.getElementById('stat-total').textContent = counts.total;
+        document.getElementById('stat-rental').textContent = counts.rental;
+        document.getElementById('stat-sale').textContent = counts.sale;
+        document.getElementById('stat-bnb').textContent = counts.bnb;
+      } catch (error) {
+        console.error('Error loading property stats:', error);
+      }
     }
 
     async function loadFeaturedProperties(filters = {}) {
@@ -770,7 +899,19 @@
         });
       }
 
+      loadPropertyStats();
+      renderRecentlyViewed();
       loadFeaturedProperties();
+    });
+
+    document.addEventListener('scroll', () => {
+      const button = document.getElementById('backToTop');
+      if (!button) return;
+      button.style.display = window.scrollY > 500 ? 'block' : 'none';
+    });
+
+    document.getElementById('backToTop')?.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 
@@ -878,6 +1019,7 @@
     </div>
   </footer>
 
+  <button id="backToTop" class="back-to-top" aria-label="Back to top" title="Back to top">↑</button>
   <a href="https://wa.me/254713402088?text=Hello%20Nyumbani%20Hub%2C%20I%20would%20like%20to%20inquire%20about%20a%20property." class="whatsapp-float" target="_blank" rel="noopener">WhatsApp: +254713402088</a>
 
   <script>

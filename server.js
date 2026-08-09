@@ -43,14 +43,13 @@ function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendVerificationEmail(email, code) {
+function createEmailTransporter() {
     const host = process.env.EMAIL_HOST;
     const user = process.env.EMAIL_USER;
     const pass = process.env.EMAIL_PASS;
 
     if (!host || !user || !pass) {
-        console.log(`[EMAIL VERIFICATION] To: ${email} Code: ${code}`);
-        return { success: true, fallback: true };
+        return null;
     }
 
     const port = Number(process.env.EMAIL_PORT || 587);
@@ -58,27 +57,28 @@ async function sendVerificationEmail(email, code) {
         ? process.env.EMAIL_SECURE === 'true'
         : port === 465;
 
-    console.log({ host, port, secure, user, hasPassword: !!pass });
-
-
-    const transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
         host,
         port,
         secure,
-        auth: {
-            user,
-            pass
-        }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4
+        auth: { user, pass },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+        family: 4,
+        requireTLS: true
     });
+}
+
+async function sendVerificationEmail(email, code) {
+    const transporter = createEmailTransporter();
+
+    if (!transporter) {
+        console.log(`[EMAIL VERIFICATION] To: ${email} Code: ${code}`);
+        return { success: true, fallback: true };
+    }
 
     try {
-        console.log({
-            host,
-            port,
-            secure,
-            user,
-            hasPassword:  !!pass
-        });
         await transporter.verify();
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>',
@@ -94,41 +94,14 @@ async function sendVerificationEmail(email, code) {
 }
 
 async function sendInquiryReplyEmail(toEmail, customerName, replyMessage, replyUrl) {
-    const host = process.env.EMAIL_HOST;
-    const user = process.env.EMAIL_USER;
-    const pass = process.env.EMAIL_PASS;
+    const transporter = createEmailTransporter();
 
-    if (!host || !user || !pass) {
+    if (!transporter) {
         console.log(`[INQUIRY REPLY] To: ${toEmail} Message: ${replyMessage}${replyUrl ? ` Reply link: ${replyUrl}` : ''}`);
         return { success: true, fallback: true };
     }
 
-    const port = Number(process.env.EMAIL_PORT || 587);
-    const secure = process.env.EMAIL_SECURE !== undefined
-        ? process.env.EMAIL_SECURE === 'true'
-        : port === 465;
-
-    console.log({ host, port, secure, user, hasPassword: !!pass });
-
-
-    const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        auth: {
-            user,
-            pass
-        }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4
-    });
-
     try {
-        console.log({
-            host,
-            port,
-            secure,
-            user,
-            hasPassword:  !!pass
-        });
         await transporter.verify();
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>',
@@ -156,17 +129,17 @@ function buildPropertySerial(propertyId, createdAt = new Date()) {
 }
 
 async function sendPropertyAssignmentEmail(agent, property) {
-    const host = process.env.EMAIL_HOST, user = process.env.EMAIL_USER, pass = process.env.EMAIL_PASS;
     if (!agent.email) return { success: false, skipped: true, reason: 'Agent has no email address.' };
-    if (!host || !user || !pass) { console.log('[PROPERTY ASSIGNMENT] To: ' + agent.email + ' Property: ' + property.title); return { success: true, fallback: true }; }
-    const port = Number(process.env.EMAIL_PORT || 587);
-    const secure = process.env.EMAIL_SECURE !== undefined ? process.env.EMAIL_SECURE === 'true' : port === 465;
+
+    const transporter = createEmailTransporter();
+    if (!transporter) {
+        console.log('[PROPERTY ASSIGNMENT] To: ' + agent.email + ' Property: ' + property.title);
+        return { success: true, fallback: true };
+    }
+
     const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
     const propertyUrl = baseUrl ? baseUrl + '/property-details.html?id=' + property.id : '';
     try {
-        console.log({ host, port, secure, user, hasPassword: !!pass });
-
-        const transporter = nodemailer.createTransport({ host, port, secure, auth: { user, pass }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4 });
         await transporter.verify();
         await transporter.sendMail({ from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>', to: agent.email, subject: 'New property assignment: ' + property.title, html: '<p>Hello ' + escapeHtml(agent.full_name || 'there') + ',</p><p>You have been assigned to <strong>' + escapeHtml(property.title) + '</strong>.</p><p><strong>Property serial:</strong> ' + escapeHtml(property.property_serial || 'Pending') + '<br><strong>Location:</strong> ' + escapeHtml(property.location || 'Not specified') + '<br><strong>Category:</strong> ' + escapeHtml(property.category || 'Not specified') + '<br><strong>Price:</strong> KES ' + escapeHtml(property.price) + '</p>' + (propertyUrl ? '<p><a href="' + escapeHtml(propertyUrl) + '">View property details</a></p>' : '') + '<p>Nyumbani Hub</p>' });
         return { success: true, fallback: false };
@@ -175,22 +148,18 @@ async function sendPropertyAssignmentEmail(agent, property) {
 
 
 async function sendViewingBookingEmail(agent, property, booking) {
-    const host = process.env.EMAIL_HOST, user = process.env.EMAIL_USER, pass = process.env.EMAIL_PASS;
     if (!agent.email) return { success: false, skipped: true, reason: 'The assigned agent has no email address.' };
-    if (!host || !user || !pass) {
+
+    const transporter = createEmailTransporter();
+    if (!transporter) {
         console.log('[VIEWING BOOKING] Agent: ' + agent.email + ' Property: ' + property.title + ' Date: ' + booking.viewing_date + ' ' + booking.viewing_time);
         return { success: true, fallback: true };
     }
 
-    const port = Number(process.env.EMAIL_PORT || 587);
-    const secure = process.env.EMAIL_SECURE !== undefined ? process.env.EMAIL_SECURE === 'true' : port === 465;
     const baseUrl = (process.env.APP_URL || '').replace(/\/$/, '');
     const propertyUrl = baseUrl ? baseUrl + '/property-details.html?id=' + property.id : '';
 
     try {
-        console.log({ host, port, secure, user, hasPassword: !!pass });
-
-        const transporter = nodemailer.createTransport({ host, port, secure, auth: { user, pass }, connectionTimeout: 30000, greetingTimeout: 30000, socketTimeout: 30000, family: 4 });
         await transporter.verify();
         await transporter.sendMail({
             from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>',

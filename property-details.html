@@ -641,6 +641,8 @@
     let currentSlide = 0;
     let slidesCount = 0;
     let currentProperty = null;
+    let galleryContainer = null;
+    let galleryThumbnails = null;
 
     function getFavorites() {
       try {
@@ -768,31 +770,12 @@
         const waNumber = (property.agent_phone || '+254713402088').replace(/[^0-9]/g, '');
         document.getElementById('whatsappLink').href = `https://wa.me/${waNumber}?text=${encodeURIComponent(`Hello, I am interested in ${property.title}.`)}`;
 
-        const galleryContainer = document.getElementById('galleryContainer');
-        const galleryThumbnails = document.getElementById('galleryThumbnails');
-        const images = property.image_paths ? property.image_paths.split(',') : [];
-        
-        if (images.length === 0) {
-          galleryContainer.innerHTML = `<img src="http://localhost:3000/uploads/default.jpg" class="gallery-img active" alt="Default Property Image">`;
-          galleryThumbnails.innerHTML = '';
-        } else {
-          galleryContainer.innerHTML = '';
-          galleryThumbnails.innerHTML = '';
-          images.forEach((img, index) => {
-            const activeClass = index === 0 ? 'active' : '';
-            const imageSrc = `http://localhost:3000${img}`;
-            galleryContainer.innerHTML += `<img src="${imageSrc}" class="gallery-img ${activeClass}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} alt="${property.title} - Image ${index + 1}">`;
-            galleryThumbnails.innerHTML += `<button class="gallery-thumbnail ${activeClass}" type="button" onclick="goToSlide(${index})" aria-label="View image ${index + 1}"><img src="${imageSrc}" loading="lazy" alt=""></button>`;
-          });
-          
-          slidesCount = images.length;
-          if (slidesCount > 1) {
-            galleryContainer.innerHTML += `
-              <button class="gallery-btn gallery-prev" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
-              <button class="gallery-btn gallery-next" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
-            `;
-          }
-        }
+        galleryContainer = document.getElementById('galleryContainer');
+        galleryThumbnails = document.getElementById('galleryThumbnails');
+        const images = Array.isArray(property.image_paths)
+          ? property.image_paths
+          : (property.image_paths ? property.image_paths.split(',') : []);
+        renderGallery(images, property);
 
         setFavBtnState(isFavorite(property.id));
       } catch (err) {
@@ -801,24 +784,125 @@
       }
     }
 
+    function normalizeImagePath(imagePath) {
+      const value = `${imagePath || ''}`.trim();
+      if (!value) return '';
+      if (/^(https?:)?\/\//i.test(value) || value.startsWith('data:')) return value;
+
+      const normalizedValue = value.replace(/\\/g, '/');
+      if (normalizedValue.startsWith('/')) return normalizedValue;
+      return `/${normalizedValue}`;
+    }
+
+    function renderGallery(images, property) {
+      if (!galleryContainer || !galleryThumbnails) return;
+
+      galleryContainer.innerHTML = '';
+      galleryThumbnails.innerHTML = '';
+      slidesCount = 0;
+      currentSlide = 0;
+
+      const galleryImages = (Array.isArray(images) ? images : [])
+        .map((img) => normalizeImagePath(img))
+        .filter(Boolean);
+
+      if (!galleryImages.length) {
+        const fallbackImage = document.createElement('img');
+        fallbackImage.src = normalizeImagePath('/uploads/default.jpg');
+        fallbackImage.className = 'gallery-img active';
+        fallbackImage.alt = 'Default Property Image';
+        galleryContainer.appendChild(fallbackImage);
+        slidesCount = 1;
+        return;
+      }
+
+      const slidesFragment = document.createDocumentFragment();
+      const thumbnailsFragment = document.createDocumentFragment();
+
+      galleryImages.forEach((imageSrc, index) => {
+        const slide = document.createElement('img');
+        slide.src = imageSrc;
+        slide.className = `gallery-img ${index === 0 ? 'active' : ''}`;
+        slide.alt = `${property.title} - Image ${index + 1}`;
+        slide.loading = index === 0 ? 'eager' : 'lazy';
+        if (index === 0) slide.setAttribute('fetchpriority', 'high');
+        slidesFragment.appendChild(slide);
+
+        const thumbnailButton = document.createElement('button');
+        thumbnailButton.type = 'button';
+        thumbnailButton.className = `gallery-thumbnail ${index === 0 ? 'active' : ''}`;
+        thumbnailButton.setAttribute('aria-label', `View image ${index + 1}`);
+        thumbnailButton.addEventListener('click', () => goToSlide(index));
+
+        const thumbnailImage = document.createElement('img');
+        thumbnailImage.src = imageSrc;
+        thumbnailImage.loading = 'lazy';
+        thumbnailImage.alt = '';
+        thumbnailButton.appendChild(thumbnailImage);
+        thumbnailsFragment.appendChild(thumbnailButton);
+      });
+
+      galleryContainer.appendChild(slidesFragment);
+      galleryThumbnails.appendChild(thumbnailsFragment);
+
+      slidesCount = galleryImages.length;
+      if (slidesCount > 1) {
+        const prevButton = document.createElement('button');
+        prevButton.type = 'button';
+        prevButton.className = 'gallery-btn gallery-prev';
+        prevButton.setAttribute('aria-label', 'Previous image');
+        prevButton.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        prevButton.addEventListener('click', prevSlide);
+
+        const nextButton = document.createElement('button');
+        nextButton.type = 'button';
+        nextButton.className = 'gallery-btn gallery-next';
+        nextButton.setAttribute('aria-label', 'Next image');
+        nextButton.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+        nextButton.addEventListener('click', nextSlide);
+
+        galleryContainer.appendChild(prevButton);
+        galleryContainer.appendChild(nextButton);
+      }
+
+      updateGalleryState();
+    }
+
+    function updateGalleryState() {
+      if (!galleryContainer || !galleryThumbnails || slidesCount <= 0) return;
+
+      const slides = galleryContainer.querySelectorAll('.gallery-img');
+      const thumbnails = galleryThumbnails.querySelectorAll('.gallery-thumbnail');
+      if (!slides.length) return;
+
+      const safeIndex = ((currentSlide % slidesCount) + slidesCount) % slidesCount;
+      currentSlide = safeIndex;
+
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+
+      thumbnails.forEach((thumbnail, index) => {
+        thumbnail.classList.toggle('active', index === currentSlide);
+      });
+
+      thumbnails[currentSlide]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
     function nextSlide() {
-      goToSlide((currentSlide + 1) % slidesCount);
+      if (slidesCount <= 0) return;
+      goToSlide(currentSlide + 1);
     }
 
     function prevSlide() {
-      goToSlide((currentSlide - 1 + slidesCount) % slidesCount);
+      if (slidesCount <= 0) return;
+      goToSlide(currentSlide - 1);
     }
 
     function goToSlide(index) {
-      const slides = document.querySelectorAll('.gallery-img');
-      const thumbnails = document.querySelectorAll('.gallery-thumbnail');
-      if (!slides.length || index < 0 || index >= slides.length) return;
-      slides[currentSlide].classList.remove('active');
-      thumbnails[currentSlide]?.classList.remove('active');
-      currentSlide = index;
-      slides[currentSlide].classList.add('active');
-      thumbnails[currentSlide]?.classList.add('active');
-      thumbnails[currentSlide]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      if (!slidesCount) return;
+      currentSlide = ((index % slidesCount) + slidesCount) % slidesCount;
+      updateGalleryState();
     }
 
     document.getElementById('inquiryForm').addEventListener('submit', async (e) => {
