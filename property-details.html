@@ -470,6 +470,7 @@
     <a href="#" onclick="history.back(); return false;" class="back-btn">
       <i class="fa-solid fa-arrow-left"></i> Back to listings
     </a>
+    <nav aria-label="Breadcrumb" style="margin:12px 0;color:#526071"><a href="index.html">Home</a> <span aria-hidden="true">/</span> <span id="breadcrumbCategory">Listings</span> <span aria-hidden="true">/</span> <span id="breadcrumbTitle">Property</span></nav>
 
     <!-- Detail Layout Grid -->
     <div class="detail-grid">
@@ -545,7 +546,7 @@
             <a id="floorPlanLink" class="submit-btn" target="_blank" rel="noopener" style="display:none;"><i class="fa-solid fa-file-lines"></i> Floor Plan</a>
           </div>
         </div>
-        <div class="description-section" id="availabilitySection" style="display:none;">
+        <section class="description-section" id="similarSection" style="display:none;"><h3>Similar properties</h3><div id="similarProperties" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"></div></section>        <div class="description-section" id="availabilitySection" style="display:none;">
           <h3>BnB Availability</h3><p id="availabilityText">Checking available dates...</p>
         </div>
       </div>
@@ -591,7 +592,7 @@
             <div class="form-group"><label for="viewPhone">Phone Number</label><input id="viewPhone" type="tel"></div>
             <div class="form-group"><label for="viewDate">Preferred Date</label><input id="viewDate" type="date" required></div>
             <div class="form-group"><label for="viewTime">Preferred Time</label><input id="viewTime" type="time" required></div>
-            <div class="form-group"><label for="viewingNotes">Notes for the agent (optional)</label><textarea id="viewingNotes" placeholder="Anything the agent should know before the viewing"></textarea></div>
+            <div class="form-group"><label for="viewingNotes">Notes for the agent (optional)</label><textarea id="viewingNotes"></textarea></div>
             <button type="submit" class="submit-btn" id="viewingSubmitBtn"><i class="fa-solid fa-calendar-check"></i> Request Viewing</button>
             <p id="viewingMessage" style="margin-top:12px; font-weight:600;"></p>
           </form>
@@ -737,6 +738,8 @@
         } catch (_) {}
 
         document.getElementById('propTitle').innerText = property.title;
+        document.getElementById('breadcrumbTitle').innerText = property.title;
+        document.getElementById('breadcrumbCategory').innerText = property.category || 'Listings';
         document.getElementById('propLocation').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${property.location || 'N/A'}`;
         document.getElementById('propPrice').innerText = `KES ${property.price.toLocaleString()}`;
         document.getElementById('badgeCategory').innerText = property.category;
@@ -777,7 +780,7 @@
           : (property.image_paths ? property.image_paths.split(',') : []);
         renderGallery(images, property);
 
-        setFavBtnState(isFavorite(property.id));
+        fetch(`${API_URL}/properties?category=${encodeURIComponent(property.category || '')}`).then(r => r.ok ? r.json() : []).then(items => { const related = items.filter(item => item.id !== property.id).slice(0, 3); if (!related.length) return; document.getElementById('similarSection').style.display = 'block'; document.getElementById('similarProperties').innerHTML = related.map(item => `<a href="property-details.html?id=${item.id}" style="display:block;padding:12px;border:1px solid #dbe2ea;border-radius:10px;color:#0b1c39;text-decoration:none"><strong>${item.title}</strong><br><small>${item.location || ''}</small><br><strong>KES ${Number(item.price || 0).toLocaleString()}</strong></a>`).join(''); }).catch(() => {});        setFavBtnState(isFavorite(property.id));
       } catch (err) {
         console.error(err);
         document.querySelector('.container').innerHTML = '<h2 style="text-align:center; padding: 100px 0; color:red;">Error loading property.</h2>';

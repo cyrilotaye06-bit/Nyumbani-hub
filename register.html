@@ -269,7 +269,7 @@ Create your account to access Rentals, BnB, Resales and Property Purchases
 <div id="verificationPanel" style="display:none; margin-bottom:20px; padding:15px; background:#f8f8f8; border-radius:10px;">
   <h3 style="margin-bottom:8px; color:#0B1C39;">Verify Your Email</h3>
   <p id="verificationMessage" style="margin-bottom:10px; color:#555;">Enter the 6-digit code sent to your email.</p>
-  <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" style="margin-bottom:10px;" />
+  <input type="text" id="verificationCode" maxlength="6" style="margin-bottom:10px;" />
   <button type="button" id="verifyBtn" style="margin-top:0;">Verify Email</button>
   <button type="button" id="resendBtn" style="margin-top:10px; background:#173a74;">Resend Code</button>
 </div>
@@ -385,7 +385,7 @@ Login
 // CONFIG
 // =====================================
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "/api";
 let pendingEmail = '';
 let pendingUser = null;
 

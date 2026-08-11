@@ -358,7 +358,7 @@
       let propertiesHtml = '';
       properties.forEach(property => {
         const imageUrl = property.image_path || '';
-        const imageSrc = imageUrl ? `http://localhost:3000${imageUrl}` : 'http://localhost:3000/uploads/default.jpg';
+        const imageSrc = imageUrl ? imageUrl : '/uploads/default.jpg';
         const detailsUrl = `property-details.html?id=${property.id}`;
         
         propertiesHtml += `

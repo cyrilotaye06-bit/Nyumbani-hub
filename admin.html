@@ -336,7 +336,11 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+                        <div class="card">
+                <h2>Overview reports</h2><p style="margin:8px 0 14px;color:#586174;">Live inventory, inquiry, and viewing performance.</p>
+                <div id="reportOverview" class="overview-grid" aria-live="polite"><p>Loading reports…</p></div>
+            </div>
+<div class="card">
                 <h2>Property Register</h2>
                 <p style="margin:8px 0 18px;color:#586174;">Stored property records and their system-generated serials.</p>
                 <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;"><thead><tr style="border-bottom:1px solid #d9dee8;color:#586174;"><th style="padding:10px">Serial</th><th style="padding:10px">Property</th><th style="padding:10px">Category</th><th style="padding:10px">Location</th><th style="padding:10px">Agent</th><th style="padding:10px">Status</th></tr></thead><tbody id="propertyRegisterList"><tr><td colspan="6" style="padding:12px">Loading property register...</td></tr></tbody></table></div>
@@ -383,23 +387,23 @@
                 <br>
                 <form id="propertyForm">
                     <div class="form-grid">
-                        <div class="field"><label for="title">Property title *</label><input type="text" id="title" placeholder="e.g. Modern 2-bedroom apartment in Kilimani" required><small class="field-hint">Use a short, specific title that highlights the property.</small></div>
+                        <div class="field"><label for="title">Property title *</label><input type="text" id="title" required><small class="field-hint">Use a short, specific title that highlights the property.</small></div>
                         <div class="field"><label for="category">Listing category</label><select id="category"><option>Rental</option><option>Sale</option><option>BnB</option><option>Resale</option></select></div>
-                        <div class="field"><label for="price">Price (KES)</label><input type="number" id="price" min="0" placeholder="e.g. 85000"><small class="field-hint">Enter the monthly rate, nightly price, or sale price.</small></div>
-                        <div class="field"><label for="location">Location</label><input type="text" id="location" placeholder="e.g. Kilimani, Nairobi"></div>
-                        <div class="field"><label for="bedrooms">Bedrooms</label><input type="number" id="bedrooms" min="0" placeholder="e.g. 2"></div>
-                        <div class="field"><label for="bathrooms">Bathrooms</label><input type="number" id="bathrooms" min="0" placeholder="e.g. 2"></div>
-                        <div class="field"><label for="parking_spaces">Parking spaces</label><input type="number" id="parking_spaces" min="0" placeholder="e.g. 1"></div>
-                        <div class="field"><label for="size">Size</label><input type="text" id="size" placeholder="e.g. 120 sqm"></div>
+                        <div class="field"><label for="price">Price (KES)</label><input type="number" id="price" min="0"><small class="field-hint">Enter the monthly rate, nightly price, or sale price.</small></div>
+                        <div class="field"><label for="location">Location</label><input type="text" id="location"></div>
+                        <div class="field"><label for="bedrooms">Bedrooms</label><input type="number" id="bedrooms" min="0"></div>
+                        <div class="field"><label for="bathrooms">Bathrooms</label><input type="number" id="bathrooms" min="0"></div>
+                        <div class="field"><label for="parking_spaces">Parking spaces</label><input type="number" id="parking_spaces" min="0"></div>
+                        <div class="field"><label for="size">Size</label><input type="text" id="size"></div>
                         <div class="field"><label for="available">Available from</label><input type="date" id="available"></div>
                         <div class="field"><label for="property_type">Property type</label><select id="property_type"><option value="">Choose a type</option><option>Apartment</option><option>House</option><option>Villa</option><option>Land</option></select></div>
                         <div class="field"><label for="furnished">Furnishing</label><select id="furnished"><option value="No">Unfurnished</option><option value="Yes">Furnished</option></select></div>
                         <div class="field"><label for="agent_id">Assigned agent</label><select id="agent_id"><option value="">Assign later</option></select></div>
                         <div class="field"><label for="expires_at">Listing expiry</label><input type="date" id="expires_at"><small class="field-hint">Optional: hide the listing after this date.</small></div>
-                        <div class="field full"><label for="description">Description</label><textarea id="description" placeholder="Describe the layout, key features, nearby landmarks, and what makes this property special."></textarea></div>
-                        <div class="field full"><label for="amenities">Amenities</label><input type="text" id="amenities" placeholder="e.g. Swimming pool, backup generator, security"><small class="field-hint">Separate each amenity with a comma.</small></div>
-                        <div class="field"><label for="video_url">Video tour</label><input type="url" id="video_url" placeholder="https://ï¿½ (optional)"></div>
-                        <div class="field"><label for="floor_plan_url">Floor plan</label><input type="url" id="floor_plan_url" placeholder="https://ï¿½ (optional)"></div>
+                        <div class="field full"><label for="description">Description</label><textarea id="description"></textarea></div>
+                        <div class="field full"><label for="amenities">Amenities</label><input type="text" id="amenities"><small class="field-hint">Separate each amenity with a comma.</small></div>
+                        <div class="field"><label for="video_url">Video tour</label><input type="url" id="video_url"></div>
+                        <div class="field"><label for="floor_plan_url">Floor plan</label><input type="url" id="floor_plan_url"></div>
                         <label style="display:flex; gap:8px; align-items:center;"><input type="checkbox" id="featured" style="width:auto;"> Feature this listing on the website</label>
                         <label style="display:flex; gap:8px; align-items:center;"><input type="checkbox" id="verified" style="width:auto;"> Mark listing as verified</label>
                         <div class="field full"><label for="images">Property photos</label><input type="file" id="images" accept="image/jpeg,image/png,image/webp,image/gif" multiple><small class="image-upload-help">Select up to 25 HD photos (JPEG, PNG, WebP, or GIF; 15 MB each). The first image is the cover photo.</small><div id="imagePreviewGrid" class="image-preview-grid" aria-live="polite"></div></div>
@@ -429,10 +433,10 @@
                 <div class="card"><h2>Add or edit an agent</h2><br>
                     <form id="agentForm"><input type="hidden" id="edit_agent_id">
                     <div class="form-grid">
-                        <input id="agent_name" placeholder="Full name" required><input id="agent_title" placeholder="Role, e.g. Senior Property Consultant">
-                        <input id="agent_phone" placeholder="Phone number"><input id="agent_whatsapp" placeholder="WhatsApp number">
-                        <input id="agent_email" type="email" placeholder="Email"><input id="agent_specialties" placeholder="Specialties, separated by commas">
-                        <textarea id="agent_bio" class="full" placeholder="Short bio"></textarea>
+                        <input id="agent_name" required><input id="agent_title">
+                        <input id="agent_phone"><input id="agent_whatsapp">
+                        <input id="agent_email" type="email"><input id="agent_specialties">
+                        <textarea id="agent_bio" class="full"></textarea>
                         <div class="full"><label>Profile photo <input id="agent_photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label></div>
                         <div class="full"><button type="submit">Save Agent</button> <button type="button" onclick="clearAgentForm()" style="background:#64748b;">Clear</button></div>
                     </div></form>
@@ -440,7 +444,7 @@
                 <div class="card"><h2>Team directory</h2><br><div id="agentsList" class="property-list"></div></div>
             </div>
 
-            <div id="analytics-section" class="section" style="display:none;"><div class="card"><h2>Listing performance</h2><br><div id="analyticsList">Loading analytics...</div></div></div>
+            <div id="analytics-section" class="section" style="display:none;"><div class="card"><h2>Listing performance</h2><button type="button" onclick="exportAnalyticsCsv()" style="float:right">Export CSV</button><br><div id="analyticsList">Loading analytics...</div></div></div>
 
             <div id="documents-section" class="section" style="display:none;">
                 <div class="card"><h2>Secure document vault</h2><p style="margin:8px 0 18px;color:#586174;">Documents are available only to dashboard administrators.</p>
@@ -515,7 +519,7 @@
             if (section === 'agents') fetchAgents();
             if (section === 'analytics') fetchAnalytics();
             if (section === 'documents') fetchDocuments();
-            if (section === 'dashboard') fetchPropertyRegister();
+            if (section === 'dashboard') { fetchPropertyRegister(); fetchOverviewReports(); }
         }
 
         // Store all properties globally
@@ -533,6 +537,7 @@
                 renderPropertiesByCategory(allProperties);
                 updateDashboardStats();
                 fetchPropertyRegister();
+                fetchOverviewReports();
                 const documentSelect = document.getElementById('document_property');
                 if (documentSelect) documentSelect.innerHTML = '<option value="">Choose a property</option>' + allProperties.map(property => `<option value="${property.id}">${property.title}</option>`).join('');
             } catch (error) {
@@ -572,6 +577,16 @@
             }
         }
 
+        async function fetchOverviewReports() {
+            const box = document.getElementById('reportOverview'); if (!box) return;
+            try {
+                const response = await fetch('/api/reports/overview', { headers: { Authorization: `Bearer ${adminToken}` } });
+                if (!response.ok) throw new Error('Reports unavailable'); const report = await response.json();
+                const category = report.by_category.map(x => `${x.category}: ${x.count}`).join(' · ') || 'No inventory';
+                const pipeline = report.pipeline.map(x => `${x.status}: ${x.count}`).join(' · ') || 'No inquiries';
+                box.innerHTML = `<div style="padding:14px;background:#f0f0f0;border-radius:10px"><strong>${report.inventory.available || 0}</strong><br>available of ${report.inventory.total || 0}</div><div style="padding:14px;background:#f0f0f0;border-radius:10px"><strong>KES ${Number(report.inventory.listed_value || 0).toLocaleString()}</strong><br>listed value</div><div style="padding:14px;background:#f0f0f0;border-radius:10px"><strong>${report.inquiries.last_30_days || 0}</strong><br>inquiries (30 days)</div><div style="padding:14px;background:#f0f0f0;border-radius:10px"><strong>${report.viewings.confirmed || 0}</strong><br>confirmed viewings</div><p class="full"><strong>Inventory:</strong> ${category}<br><strong>Inquiry pipeline:</strong> ${pipeline}</p>`;
+            } catch (error) { box.innerHTML = '<p style="color:#b42318">Could not load overview reports.</p>'; }
+        }
         // Render properties grouped by category
         function renderPropertiesByCategory(properties) {
             const categories = {
@@ -646,11 +661,13 @@
         async function deleteAgent(id) { if (!confirm('Delete this agent? Listings will remain, but become unassigned.')) return; const r=await fetch(`/api/agents/${id}`,{method:'DELETE',headers:{Authorization:`Bearer ${adminToken}`}}); if(!r.ok) return alert('Could not delete agent.'); await fetchAgents(); }
         document.getElementById('agentForm').addEventListener('submit', async function(e) { e.preventDefault(); const data=new FormData(); [['full_name','agent_name'],['job_title','agent_title'],['phone','agent_phone'],['whatsapp','agent_whatsapp'],['email','agent_email'],['specialties','agent_specialties'],['bio','agent_bio']].forEach(([key,id])=>data.append(key,document.getElementById(id).value)); const photo=document.getElementById('agent_photo').files[0]; if(photo)data.append('photo',photo); const id=document.getElementById('edit_agent_id').value; const r=await fetch(id?`/api/agents/${id}`:'/api/agents',{method:id?'PATCH':'POST',headers:{Authorization:`Bearer ${adminToken}`},body:data}); if(!r.ok) return alert('Could not save agent.'); clearAgentForm(); await fetchAgents(); alert('Agent saved.'); });
 
-        async function fetchAnalytics() { const r=await fetch('/api/analytics/listings',{headers:{Authorization:`Bearer ${adminToken}`}}); const box=document.getElementById('analyticsList'); if(!r.ok){box.textContent='Could not load analytics.';return;} const rows=await r.json(); box.innerHTML=rows.length?`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><tr><th style="text-align:left;padding:10px">Listing</th><th>Views</th><th>Saves</th><th>Inquiries</th></tr>${rows.map(x=>`<tr><td style="padding:10px;border-top:1px solid #e5e7eb">${x.title} <small>(${x.category})</small></td><td style="text-align:center">${x.views}</td><td style="text-align:center">${x.saves}</td><td style="text-align:center">${x.inquiries}</td></tr>`).join('')}</table></div>`:'No listing data yet.'; }
+        async function fetchAnalytics() { const r=await fetch('/api/analytics/listings',{headers:{Authorization:`Bearer ${adminToken}`}}); const box=document.getElementById('analyticsList'); if(!r.ok){box.textContent='Could not load analytics.';return;} const rows=await r.json(); analyticsRows = rows; box.innerHTML=rows.length?`<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><tr><th style="text-align:left;padding:10px">Listing</th><th>Views</th><th>Saves</th><th>Inquiries</th></tr>${rows.map(x=>`<tr><td style="padding:10px;border-top:1px solid #e5e7eb">${x.title} <small>(${x.category})</small></td><td style="text-align:center">${x.views}</td><td style="text-align:center">${x.saves}</td><td style="text-align:center">${x.inquiries}</td></tr>`).join('')}</table></div>`:'No listing data yet.'; }
         async function fetchDocuments() { const r=await fetch('/api/documents',{headers:{Authorization:`Bearer ${adminToken}`}}); const box=document.getElementById('documentsList'); if(!r.ok){box.textContent='Could not load documents.';return;} const rows=await r.json(); box.innerHTML=rows.length?rows.map(d=>`<div style="padding:12px;border-bottom:1px solid #e5e7eb"><strong>${d.file_name}</strong> â€” ${d.property_title}<span style="float:right"><button onclick="downloadDocument(${d.id}, '${d.file_name.replace(/'/g,"\\'")}')">Download</button> <button class="delete-btn" onclick="deleteDocument(${d.id})">Delete</button></span></div>`).join(''):'No documents in the vault.'; }
         async function downloadDocument(id,name){const r=await fetch(`/api/documents/${id}/download`,{headers:{Authorization:`Bearer ${adminToken}`}});if(!r.ok)return alert('Could not download document.');const a=document.createElement('a');a.href=URL.createObjectURL(await r.blob());a.download=name;a.click();URL.revokeObjectURL(a.href);}
         async function deleteDocument(id){if(!confirm('Delete this document?'))return;await fetch(`/api/documents/${id}`,{method:'DELETE',headers:{Authorization:`Bearer ${adminToken}`}});fetchDocuments();}
         document.getElementById('documentForm').addEventListener('submit',async function(e){e.preventDefault();const data=new FormData();data.append('property_id',document.getElementById('document_property').value);data.append('document',document.getElementById('vault_document').files[0]);const r=await fetch('/api/documents',{method:'POST',headers:{Authorization:`Bearer ${adminToken}`},body:data});if(!r.ok)return alert('Could not upload document.');this.reset();fetchDocuments();});
+        let analyticsRows = [];
+        function exportAnalyticsCsv() { if (!analyticsRows.length) return alert('No analytics data to export.'); const csv = ['Listing,Category,Views,Saves,Inquiries', ...analyticsRows.map(x => `"${String(x.title).replace(/"/g,'""')}","${x.category}",${x.views},${x.saves},${x.inquiries}`)].join('\n'); const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); const a = document.createElement('a'); a.href = url; a.download = 'nyumbani-listing-performance.csv'; a.click(); URL.revokeObjectURL(url); }
         fetchAnalytics(); fetchDocuments();
 
         async function fetchInquiries() {
@@ -685,7 +702,7 @@
                                 </div>
                             `).join('') : '<p style="margin-top:8px;">No prior replies yet.</p>'}
                         </div>
-                        <textarea id="reply-${inquiry.id}" rows="3" placeholder="Type your reply here..." style="width:100%; margin-top:10px; padding:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
+                        <textarea id="reply-${inquiry.id}" rows="3" style="width:100%; margin-top:10px; padding:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
                         <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
                             <button onclick="sendInquiryReply(${inquiry.id})">Send Reply</button>
                             <select id="status-${inquiry.id}" style="width:auto; padding:10px;"><option ${inquiry.status === 'New' ? 'selected' : ''}>New</option><option ${inquiry.status === 'Contacted' ? 'selected' : ''}>Contacted</option><option ${inquiry.status === 'Viewing' ? 'selected' : ''}>Viewing</option><option ${inquiry.status === 'Closed' ? 'selected' : ''}>Closed</option><option ${inquiry.status === 'Archived' ? 'selected' : ''}>Archived</option></select>
@@ -848,11 +865,17 @@
                     body: JSON.stringify({ replyMessage: message })
                 });
                 if (!response.ok) throw new Error('Failed to send reply');
+                const result = await response.json();
                 textarea.value = '';
-                alert('Reply sent successfully.');
+                if (result.warning) {
+                    alert('Reply recorded in conversation history, but email delivery failed: ' + result.warning);
+                } else {
+                    alert('Reply sent successfully.');
+                }
+                await fetchInquiries();
             } catch (error) {
                 console.error('Error sending reply:', error);
-                alert('Error sending email reply.');
+                alert('Error sending reply.');
             }
         }
 

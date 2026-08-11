@@ -2,7 +2,7 @@
 // Nyumbani Hub SCRIPT.JS
 // =====================================
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "/api";
 
 
 // =====================================
@@ -208,7 +208,7 @@ container.innerHTML += `
 <div class="property-card">
 
 <img
-src="${property.image_path ? 'http://localhost:3000' + property.image_path : 'http://localhost:3000/uploads/default.jpg'}"
+src="${property.image_path ? property.image_path : '/uploads/default.jpg'}"
 alt="${property.title}">
 
 <div class="content">

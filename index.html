@@ -418,9 +418,11 @@
         flex-direction:column;
       }
     }
-  </style>
+      .skip-link{position:fixed;left:12px;top:-60px;z-index:2000;background:#fff;color:#0b1c39;padding:10px 14px;border-radius:8px;font-weight:700}.skip-link:focus{top:12px;outline:3px solid #facc15}.search-box :focus-visible,.btn:focus-visible{outline:3px solid #facc15;outline-offset:3px}@media(max-width:768px){.search-box{position:sticky;top:0;z-index:20;padding:14px!important}.property-card img{aspect-ratio:16/10;object-fit:cover}}
+</style>
 </head>
 <body>
+  <a class="skip-link" href="#featured-properties">Skip to listing results</a>
 
   <!-- HEADER -->
   <header>
@@ -445,7 +447,7 @@
       <p id="hero-subtitle">Rent, Buy, Resell & Book Luxury Apartments and Homes</p>
 
       <form id="home-search-form" class="search-box">
-        <input id="search-keyword" type="text" placeholder="Location or keyword">
+        <input id="search-keyword" type="text" aria-label="Search by location or keyword">
         
         <select id="search-property-type">
           <option value="">Property Type</option>
@@ -476,8 +478,9 @@
           <option value="100000-300000">KES 100,000 - KES 300,000</option>
           <option value="300000+">KES 300,000+</option>
         </select>
+        <details style="grid-column:1 / -1; color:#0b1c39; text-align:left;"><summary style="cursor:pointer;font-weight:700;padding:6px 0;">Advanced filters</summary><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;padding-top:10px;"><select id="search-bathrooms" aria-label="Minimum bathrooms"><option value="">Any bathrooms</option><option value="1">1+ bathrooms</option><option value="2">2+ bathrooms</option><option value="3">3+ bathrooms</option></select><select id="search-parking" aria-label="Minimum parking"><option value="">Any parking</option><option value="1">1+ parking</option><option value="2">2+ parking</option></select><select id="search-furnished" aria-label="Furnishing"><option value="">Any furnishing</option><option value="Yes">Furnished</option><option value="No">Unfurnished</option></select><select id="search-verified" aria-label="Listing verification"><option value="">All listings</option><option value="true">Verified only</option></select><select id="search-sort" aria-label="Sort results"><option value="newest">Newest first</option><option value="price_asc">Lowest price</option><option value="price_desc">Highest price</option><option value="bedrooms_desc">Most bedrooms</option></select></div></details>
 
-        <button type="submit">Search</button>
+        <button type="submit">Search</button><button type="button" id="reset-search-btn" style="background:#e2e8f0;color:#0b1c39;">Reset</button>
         <button type="button" id="save-search-btn" style="background:#fff; color:#0b1c39;">Save Search</button>
       </form>
       <p id="saved-search-message" style="margin-top:10px; font-weight:600;"></p>
@@ -493,10 +496,10 @@
         <p style="margin-bottom: 16px; color: #4b5563;">Send your details and the team will follow up with you directly.</p>
         <form id="homepageInquiryForm">
           <div style="display:grid; gap:12px;">
-            <input type="text" id="homeInqName" placeholder="Your name" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <input type="email" id="homeInqEmail" placeholder="Your email" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <input type="tel" id="homeInqPhone" placeholder="Phone number" style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
-            <textarea id="homeInqMessage" rows="4" placeholder="Tell us what you are looking for" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
+            <input type="text" id="homeInqName" aria-label="Your name" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <input type="email" id="homeInqEmail" aria-label="Your email" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <input type="tel" id="homeInqPhone" aria-label="Phone number" style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;">
+            <textarea id="homeInqMessage" aria-label="Tell us what you are looking for" rows="4" required style="padding: 12px; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
             <button type="submit" class="btn" style="width: auto;">Send Inquiry</button>
             <p id="homeInquiryMessage" style="display:none; color:#0b1c39; font-weight:600;"></p>
           </div>
@@ -616,10 +619,7 @@
       </div>
     </div>
 
-    <div class="map-placeholder" style="margin-top: 24px;">
-      <strong>Neighborhood map preview</strong><br>
-      Interactive maps and area insights can be added here for a richer browsing experience.
-    </div>
+    <div id="listing-map" role="region" aria-label="Map-aware listing results" style="margin-top:24px;min-height:180px;padding:20px;border-radius:16px;background:linear-gradient(135deg,#dbeafe,#dcfce7);color:#0b1c39;"><strong>Map-aware results</strong><p id="map-summary" style="margin:8px 0;">Search to see matching neighborhoods and map links.</p><div id="map-markers" style="display:flex;gap:8px;flex-wrap:wrap;"></div></div>
   </section>
 
   <!-- MARKET UPDATES -->
@@ -651,7 +651,7 @@
       <h2>Get Property Updates</h2>
       <p>Subscribe for curated listings, market news, and exclusive opportunities.</p>
       <form id="newsletter-form">
-        <input type="email" id="newsletter-email" placeholder="Enter your email" required>
+        <input type="email" id="newsletter-email" aria-label="Email address" required>
         <button type="submit">Subscribe</button>
       </form>
       <p class="newsletter-message" id="newsletter-message"></p>
@@ -680,6 +680,7 @@
       const bedrooms = filters.bedrooms;
       const purpose = (filters.purpose || '').trim().toLowerCase();
       const priceRange = filters.priceRange;
+      const bathrooms = Number(filters.bathrooms || 0), parking = Number(filters.parking || 0), furnished = filters.furnished || '', verified = filters.verified === 'true';
 
       return properties.filter(property => {
         const title = (property.title || '').toLowerCase();
@@ -702,10 +703,16 @@
           else if (purpose === 'short stay') matchesPurpose = category === 'bnb';
         }
 
-        return matchesKeyword && matchesType && matchesBedrooms && matchesPurpose && matchesPriceRange(price, priceRange);
+        return matchesKeyword && matchesType && matchesBedrooms && matchesPurpose && matchesPriceRange(price, priceRange) && (!bathrooms || Number(property.bathrooms || 0) >= bathrooms) && (!parking || Number(property.parking_spaces || 0) >= parking) && (!furnished || property.furnished === furnished) && (!verified || Number(property.verified) === 1);
       });
     }
 
+    function renderMapResults(properties) {
+      const summary = document.getElementById('map-summary'), markers = document.getElementById('map-markers'); if (!summary || !markers) return;
+      const locations = [...new Set(properties.map(p => p.location).filter(Boolean))]; summary.textContent = properties.length ? `${properties.length} matching listing${properties.length === 1 ? '' : 's'} across ${locations.length || 1} location${locations.length === 1 ? '' : 's'}.` : 'No matching listings to map.';
+      markers.innerHTML = locations.slice(0, 12).map(location => `<a class="btn" style="padding:8px 12px;font-size:14px" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}">${location}</a>`).join('');
+    }
+    function collectSearchFilters() { return { keyword: document.getElementById('search-keyword').value, propertyType: document.getElementById('search-property-type').value, bedrooms: document.getElementById('search-bedrooms').value, purpose: document.getElementById('search-purpose').value, priceRange: document.getElementById('search-price-range').value, bathrooms: document.getElementById('search-bathrooms').value, parking: document.getElementById('search-parking').value, furnished: document.getElementById('search-furnished').value, verified: document.getElementById('search-verified').value, sort: document.getElementById('search-sort').value }; }
     let comparisonProperties = [];
     function updateComparisonBar() {
       const bar = document.getElementById('compare-bar');
@@ -725,7 +732,8 @@
       if (comparisonProperties.length < 2) { alert('Select at least two properties to compare.'); return; }
       const rows = [['Price', p => `KES ${Number(p.price || 0).toLocaleString()}`], ['Location', p => p.location || '—'], ['Beds', p => p.bedrooms || '—'], ['Baths', p => p.bathrooms || '—'], ['Furnished', p => p.furnished || 'No'], ['Type', p => p.property_type || p.category || '—']];
       const popup = window.open('', 'property-comparison', 'width=900,height=650');
-      popup.document.write(`<title>Nyumbani Hub Property Comparison</title><style>body{font-family:Arial;padding:28px;color:#0b1c39}table{border-collapse:collapse;width:100%}th,td{border:1px solid #dbe2ea;padding:12px;text-align:left}th{background:#0b1c39;color:white}</style><h1>Compare Properties</h1><table><tr><th>Feature</th>${comparisonProperties.map(p => `<th>${p.title}</th>`).join('')}</tr>${rows.map(([label, value]) => `<tr><td><strong>${label}</strong></td>${comparisonProperties.map(p => `<td>${value(p)}</td>`).join('')}</tr>`).join('')}</table>`);
+      popup.document.write(`<title>Nyumbani Hub Property Comparison</title><style>body{font-family:Arial;padding:28px;color:#0b1c39}table{border-collapse:collapse;width:100%}th,td{border:1px solid #dbe2ea;padding:12px;text-align:left}th{background:#0b1c39;color:white}    .skip-link{position:fixed;left:12px;top:-60px;z-index:2000;background:#fff;color:#0b1c39;padding:10px 14px;border-radius:8px;font-weight:700}.skip-link:focus{top:12px;outline:3px solid #facc15}.search-box :focus-visible,.btn:focus-visible{outline:3px solid #facc15;outline-offset:3px}@media(max-width:768px){.search-box{position:sticky;top:0;z-index:20;padding:14px!important}.property-card img{aspect-ratio:16/10;object-fit:cover}}
+</style><h1>Compare Properties</h1><table><tr><th>Feature</th>${comparisonProperties.map(p => `<th>${p.title}</th>`).join('')}</tr>${rows.map(([label, value]) => `<tr><td><strong>${label}</strong></td>${comparisonProperties.map(p => `<td>${value(p)}</td>`).join('')}</tr>`).join('')}</table>`);
       popup.document.close();
     }
 
@@ -787,7 +795,9 @@
         if (!response.ok) throw new Error('Failed to fetch properties');
         
         const properties = await response.json();
-        const filteredProperties = filterProperties(properties, filters);
+        let filteredProperties = filterProperties(properties, filters);
+        const sorters = { price_asc: (a,b) => Number(a.price)-Number(b.price), price_desc: (a,b) => Number(b.price)-Number(a.price), bedrooms_desc: (a,b) => Number(b.bedrooms)-Number(a.bedrooms) }; if (sorters[filters.sort]) filteredProperties = filteredProperties.sort(sorters[filters.sort]);
+        renderMapResults(filteredProperties);
         
         container.innerHTML = '';
 
@@ -812,7 +822,7 @@
           const normalizedImageUrl = imageUrl
             ? (imageUrl.startsWith('http') ? imageUrl : imageUrl.startsWith('/') ? imageUrl : `/uploads/${imageUrl}`)
             : '';
-          const imageHtml = normalizedImageUrl ? `<img src="${normalizedImageUrl}" alt="${property.title}">` : '';
+          const imageHtml = normalizedImageUrl ? `<img src="${normalizedImageUrl}" alt="${property.title}" loading="lazy">` : '';
           
           container.innerHTML += `
             <div class="property-card">
@@ -833,26 +843,27 @@
       }
     }
 
+    function setupPrivacyChoices() {
+      const banner = document.getElementById('privacy-banner'); if (!banner || localStorage.getItem('nyhPrivacyChoice')) return;
+      banner.style.display = 'block';
+      const save = async granted => { localStorage.setItem('nyhPrivacyChoice', granted ? 'all' : 'essential'); banner.style.display = 'none'; try { await fetch('/api/privacy/consent', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ consent_type:'optional_analytics', granted }) }); } catch (_) {} };
+      document.getElementById('privacy-accept').addEventListener('click', () => save(true)); document.getElementById('privacy-essential').addEventListener('click', () => save(false));
+    }
     document.addEventListener('DOMContentLoaded', () => {
       const searchForm = document.getElementById('home-search-form');
       if (searchForm) {
         searchForm.addEventListener('submit', (event) => {
           event.preventDefault();
-          loadFeaturedProperties({
-            keyword: document.getElementById('search-keyword').value,
-            propertyType: document.getElementById('search-property-type').value,
-            bedrooms: document.getElementById('search-bedrooms').value,
-            purpose: document.getElementById('search-purpose').value,
-            priceRange: document.getElementById('search-price-range').value
-          });
+          loadFeaturedProperties(collectSearchFilters());
         });
       }
 
+      document.getElementById('reset-search-btn').addEventListener('click', () => { searchForm.reset(); loadFeaturedProperties(); document.getElementById('map-summary').textContent = 'Search to see matching neighborhoods and map links.'; });
       document.getElementById('save-search-btn').addEventListener('click', async () => {
         const message = document.getElementById('saved-search-message');
         const token = localStorage.getItem('userToken');
         if (!token) { message.style.color = '#fff'; message.textContent = 'Sign in to save searches and receive matching-listing alerts.'; return; }
-        const filters = { keyword: document.getElementById('search-keyword').value, propertyType: document.getElementById('search-property-type').value, bedrooms: document.getElementById('search-bedrooms').value, purpose: document.getElementById('search-purpose').value, priceRange: document.getElementById('search-price-range').value };
+        const filters = collectSearchFilters();
         const name = window.prompt('Name this saved search:', filters.keyword || 'My property search');
         if (!name) return;
         try {
@@ -901,6 +912,7 @@
 
       loadPropertyStats();
       renderRecentlyViewed();
+      setupPrivacyChoices();
       loadFeaturedProperties();
     });
 
@@ -1025,7 +1037,7 @@
   <script>
     async function loadSiteSettings() {
       try {
-        const response = await fetch('http://localhost:3000/api/settings');
+        const response = await fetch('/api/settings');
         if (!response.ok) return;
         const settings = await response.json();
         
@@ -1066,5 +1078,5 @@
     });
   </script>
 
-</body>
+  <aside id="privacy-banner" role="dialog" aria-label="Privacy choices" style="display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:1000;max-width:680px;margin:auto;background:#0b1c39;color:#fff;padding:18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.3)"><strong>Your privacy choices</strong><p style="margin:8px 0">We use essential storage for saved searches and preferences. Choose whether optional analytics may be stored.</p><button id="privacy-accept" class="btn">Accept optional analytics</button> <button id="privacy-essential" class="btn" style="background:#fff;color:#0b1c39">Essential only</button></aside></body>
 </html>

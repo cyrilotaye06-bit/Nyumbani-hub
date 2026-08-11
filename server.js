@@ -17,6 +17,24 @@ if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
     throw new Error('JWT_SECRET must be set when NODE_ENV=production.');
 }
 
+// Baseline protection for static pages and API responses.
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'geolocation=(self), camera=(), microphone=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    if (process.env.NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    next();
+});
+
+async function audit(action, req, details = {}) {
+    try {
+        await db.query('INSERT INTO audit_logs (action, actor_id, actor_email, ip_address, details) VALUES (?, ?, ?, ?, ?)', [action, req.user?.id || null, req.user?.email || null, req.ip || '', JSON.stringify(details)]);
+    } catch (error) { console.warn('Audit log could not be written:', error.message); }
+}
+
 // Small, dependency-free guard for public write endpoints. It is intentionally
 // conservative so normal visitors are not blocked, while repeated automated
 // submissions receive a clear response.
@@ -174,6 +192,13 @@ async function sendViewingBookingEmail(agent, property, booking) {
     }
 }
 
+async function sendViewingStatusEmail(booking, propertyTitle) {
+    const transporter = createEmailTransporter();
+    if (!transporter) return { success: true, fallback: true };
+    const message = booking.status === 'Confirmed' ? `Your viewing for <strong>${escapeHtml(propertyTitle)}</strong> has been confirmed for ${escapeHtml(booking.viewing_date)} at ${escapeHtml(booking.viewing_time)}.` : booking.status === 'Cancelled' ? `Your viewing for <strong>${escapeHtml(propertyTitle)}</strong> has been cancelled. Our team can help you choose another time.` : `Your viewing for <strong>${escapeHtml(propertyTitle)}</strong> is now marked as ${escapeHtml(booking.status)}.`;
+    try { await transporter.sendMail({ from: process.env.EMAIL_FROM || 'Nyumbani Hub <no-reply@nyumbanihub.com>', to: booking.customer_email, subject: `Viewing ${booking.status.toLowerCase()}: ${propertyTitle}`, html: `<p>Hello ${escapeHtml(booking.customer_name)},</p><p>${message}</p><p>Nyumbani Hub</p>` }); return { success: true }; }
+    catch (error) { console.error('Viewing status email failed:', error); return { success: false, error: error.message }; }
+}
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -231,6 +256,10 @@ async function seedDefaultProperties() {
         const [propertyCount] = await db.query('SELECT COUNT(*) as count FROM properties');
         if (propertyCount[0].count > 0) return;
 
+        // Fetch the first agent's ID to satisfy the FOREIGN KEY constraint
+        const [agents] = await db.query('SELECT id FROM agents LIMIT 1');
+        const defaultAgentId = agents && agents.length > 0 ? agents[0].id : null;
+
         const sampleProperties = [
             {
                 title: 'Luxury Apartment in Westlands',
@@ -247,7 +276,7 @@ async function seedDefaultProperties() {
                 description: 'Modern apartment with skyline views, secure parking, and easy access to business hubs.',
                 featured: 1,
                 status: 'Available',
-                agent_id: 1
+                agent_id: defaultAgentId
             },
             {
                 title: 'Spacious Villa in Runda',
@@ -264,7 +293,7 @@ async function seedDefaultProperties() {
                 description: 'A premium villa with a private garden, large lounge, and high-end finishes.',
                 featured: 1,
                 status: 'Available',
-                agent_id: 1
+                agent_id: defaultAgentId
             },
             {
                 title: 'Cozy BnB in Kilimani',
@@ -281,7 +310,7 @@ async function seedDefaultProperties() {
                 description: 'Comfortable short-stay home ideal for travelers and business visitors.',
                 featured: 1,
                 status: 'Available',
-                agent_id: 1
+                agent_id: defaultAgentId
             }
         ];
 
@@ -488,6 +517,22 @@ async function initDB() {
             )
         `);
 
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action TEXT NOT NULL,
+                actor_id INTEGER,
+                actor_email TEXT,
+                ip_address TEXT,
+                details TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        await db.query(`CREATE TABLE IF NOT EXISTS privacy_consents (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, consent_type TEXT NOT NULL, granted INTEGER NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
+        await db.query(`CREATE TABLE IF NOT EXISTS payment_deposits (id INTEGER PRIMARY KEY AUTOINCREMENT, property_id INTEGER NOT NULL, customer_name TEXT NOT NULL, customer_email TEXT NOT NULL, amount REAL NOT NULL, currency TEXT DEFAULT 'KES', status TEXT DEFAULT 'Pending', provider_reference TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(property_id) REFERENCES properties(id) ON DELETE CASCADE)`);
+        await db.query(`CREATE TABLE IF NOT EXISTS notification_log (id INTEGER PRIMARY KEY AUTOINCREMENT, channel TEXT NOT NULL, recipient TEXT, subject TEXT, status TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
+        await db.query('CREATE INDEX IF NOT EXISTS idx_payments_status_created ON payment_deposits(status, created_at)');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_privacy_email ON privacy_consents(email, created_at)');
         // SQLite databases created by earlier versions are upgraded in place.
         const ensureColumn = async (table, column, definition) => {
             const [columns] = await db.query(`PRAGMA table_info(${table})`);
@@ -502,6 +547,8 @@ async function initDB() {
         await ensureColumn('properties', 'verified', 'INTEGER DEFAULT 0');
         await ensureColumn('properties', 'expires_at', 'TEXT');
         await ensureColumn('properties', 'published_at', 'TEXT');
+        await ensureColumn('properties', 'latitude', 'REAL');
+        await ensureColumn('properties', 'longitude', 'REAL');
         await ensureColumn('properties', 'property_serial', 'TEXT');
         await db.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_properties_property_serial ON properties(property_serial)');
         await ensureColumn('inquiries', 'status', "TEXT DEFAULT 'New'");
@@ -512,6 +559,11 @@ async function initDB() {
         await ensureColumn('agents', 'job_title', 'TEXT');
         await ensureColumn('agents', 'specialties', 'TEXT');
         await ensureColumn('agents', 'whatsapp', 'TEXT');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_properties_search ON properties(status, category, price, bedrooms, bathrooms)');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_properties_location ON properties(location)');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_inquiries_status_created ON inquiries(status, created_at)');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_viewings_status_date ON viewing_bookings(status, viewing_date)');
+        await db.query('CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at)');
 
         // Bootstrap only when explicitly configured. Existing administrators are never overwritten.
         if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
@@ -583,7 +635,18 @@ const authenticateAdmin = (req, res, next) => {
     });
 };
 
+app.get('/robots.txt', (req, res) => { res.type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: ${(process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '')}/sitemap.xml`); });
+app.get('/sitemap.xml', async (req, res) => {
+    try { const [properties] = await db.query("SELECT id, updated_at, created_at FROM properties WHERE status = 'Available' AND (expires_at IS NULL OR expires_at = '' OR date(expires_at) >= date('now'))"); const base = (process.env.APP_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, ''); const urls = [`${base}/`, ...properties.map(p => `${base}/property-details.html?id=${p.id}`)]; res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url => `<url><loc>${url}</loc></url>`).join('')}</urlset>`); } catch { res.status(500).type('text/plain').send('Sitemap unavailable'); }
+});
+app.post('/api/privacy/consent', rateLimit({ max: 10 }), async (req, res) => { const { email = '', consent_type = 'cookies', granted } = req.body; if (typeof granted !== 'boolean') return res.status(400).json({ error: 'A consent choice is required.' }); await db.query('INSERT INTO privacy_consents (email, consent_type, granted) VALUES (?, ?, ?)', [email.trim().toLowerCase(), consent_type, granted ? 1 : 0]); res.status(201).json({ message: 'Privacy preference saved.' }); });
+app.post('/api/payments/deposits', rateLimit({ max: 6 }), async (req, res) => { const { property_id, customer_name, customer_email, amount } = req.body; if (!property_id || !customer_name || !customer_email || !Number(amount) || Number(amount) <= 0) return res.status(400).json({ error: 'Property, customer details, and a valid deposit amount are required.' }); const [properties] = await db.query("SELECT id FROM properties WHERE id = ? AND category = 'BnB'", [property_id]); if (!properties.length) return res.status(404).json({ error: 'BnB property not found.' }); const reference = `NYH-DP-${Date.now()}`; const [result] = await db.query('INSERT INTO payment_deposits (property_id, customer_name, customer_email, amount, provider_reference) VALUES (?, ?, ?, ?, ?)', [property_id, customer_name, customer_email, Number(amount), reference]); await audit('deposit.requested', req, { deposit_id: result.insertId, property_id, amount: Number(amount) }); res.status(201).json({ id: result.insertId, reference, status: 'Pending', message: 'Deposit request received. Payment-provider processing can be enabled with configured credentials.' }); });
+app.get('/api/account/summary', authenticateToken, async (req, res) => { const [user] = await db.query('SELECT full_name, email, phone FROM users WHERE id = ?', [req.user.id]); if (!user.length) return res.status(404).json({ error: 'Account not found.' }); const email = user[0].email; const [saved] = await db.query('SELECT COUNT(*) AS count FROM favorites WHERE user_email = ?', [email]); const [searches] = await db.query('SELECT id, name, filters, alerts_enabled, created_at FROM saved_searches WHERE user_id = ? ORDER BY created_at DESC', [req.user.id]); const [viewings] = await db.query('SELECT v.*, p.title AS property_title FROM viewing_bookings v JOIN properties p ON p.id = v.property_id WHERE v.customer_email = ? ORDER BY v.viewing_date DESC', [email]); res.json({ profile: user[0], saved_count: saved[0].count, searches: searches.map(x => ({ ...x, filters: JSON.parse(x.filters) })), viewings }); });
 // API Endpoints
+app.get('/health', async (req, res) => {
+    try { await db.query('SELECT 1'); res.status(200).json({ status: 'ok', database: 'ok', timestamp: new Date().toISOString() }); }
+    catch (error) { res.status(503).json({ status: 'degraded', database: 'unavailable' }); }
+});
 
 // Get Site Settings
 app.get('/api/settings', async (req, res) => {
@@ -617,7 +680,7 @@ app.put('/api/settings', authenticateAdmin, async (req, res) => {
 // Get all properties
 app.get('/api/properties', async (req, res) => {
     try {
-        const { category, q, location, min_price, max_price, bedrooms, furnished, property_type, featured } = req.query;
+        const { category, q, location, min_price, max_price, bedrooms, bathrooms, parking_spaces, furnished, property_type, featured, verified, amenities, sort } = req.query;
         let query = `
             SELECT p.*, a.full_name AS agent_name, a.phone AS agent_phone, a.email AS agent_email,
                    GROUP_CONCAT(pi.image_path ORDER BY pi.id) AS image_paths
@@ -633,13 +696,18 @@ app.get('/api/properties', async (req, res) => {
         if (min_price) { conditions.push('p.price >= ?'); params.push(Number(min_price)); }
         if (max_price) { conditions.push('p.price <= ?'); params.push(Number(max_price)); }
         if (bedrooms) { conditions.push(req.query.bedrooms === '4+' ? 'p.bedrooms >= 4' : 'p.bedrooms >= ?'); if (req.query.bedrooms !== '4+') params.push(Number(bedrooms)); }
+        if (bathrooms) { conditions.push('p.bathrooms >= ?'); params.push(Number(bathrooms)); }
+        if (parking_spaces) { conditions.push('p.parking_spaces >= ?'); params.push(Number(parking_spaces)); }
         if (furnished) { conditions.push('p.furnished = ?'); params.push(furnished); }
         if (property_type) { conditions.push('p.property_type = ?'); params.push(property_type); }
         if (featured === 'true') conditions.push('p.featured = 1');
+        if (verified === 'true') conditions.push('p.verified = 1');
+        if (amenities) { conditions.push('p.amenities LIKE ?'); params.push(`%${amenities}%`); }
         conditions.push("p.status = 'Available'");
         conditions.push("(p.expires_at IS NULL OR p.expires_at = '' OR date(p.expires_at) >= date('now'))");
         query += ` WHERE ${conditions.join(' AND ')}`;
-        query += ' GROUP BY p.id ORDER BY p.created_at DESC';
+        const sorting = { price_asc: 'p.price ASC', price_desc: 'p.price DESC', newest: 'p.created_at DESC', bedrooms_desc: 'p.bedrooms DESC' };
+        query += ' GROUP BY p.id ORDER BY ' + (sorting[sort] || sorting.newest);
 
         const [rows] = await db.query(query, params);
         res.json(rows);
@@ -760,6 +828,7 @@ app.post('/api/inquiries', rateLimit({ max: 12 }), async (req, res) => {
             VALUES (?, ?, ?)
         `, [inquiryId, 'customer', message]);
 
+        await audit('inquiry.created', req, { inquiry_id: inquiryId, property_id: property_id || null });
         res.status(201).json({ message: 'Inquiry submitted successfully.' });
     } catch (error) {
         console.error('Error submitting inquiry:', error);
@@ -778,6 +847,7 @@ app.patch('/api/inquiries/:id', authenticateAdmin, async (req, res) => {
             assigned_agent_id = ?,
             admin_notes = COALESCE(?, admin_notes)
             WHERE id = ?`, [status || null, assigned_agent_id || null, admin_notes || null, req.params.id]);
+        await audit('inquiry.updated', req, { inquiry_id: Number(req.params.id), status, assigned_agent_id: assigned_agent_id || null });
         res.json({ message: 'Inquiry updated successfully.' });
     } catch (error) {
         console.error('Error updating inquiry:', error);
@@ -823,6 +893,7 @@ app.post('/api/viewings', rateLimit({ max: 10 }), async (req, res) => {
             property,
             { customer_name, customer_email, customer_phone, viewing_date, viewing_time, notes }
         );
+        await audit('viewing.requested', req, { viewing_id: result.insertId, property_id });
         res.status(201).json({
             id: result.insertId,
             message: 'Viewing request submitted. We will confirm shortly.',
@@ -835,12 +906,18 @@ app.post('/api/viewings', rateLimit({ max: 10 }), async (req, res) => {
 });
 
 app.patch('/api/viewings/:id', authenticateAdmin, async (req, res) => {
-    const allowed = ['Requested', 'Confirmed', 'Completed', 'Cancelled'];
-    if (!allowed.includes(req.body.status)) return res.status(400).json({ error: 'Invalid viewing status.' });
-    await db.query('UPDATE viewing_bookings SET status = ? WHERE id = ?', [req.body.status, req.params.id]);
-    res.json({ message: 'Viewing status updated.' });
+    try {
+        const allowed = ['Requested', 'Confirmed', 'Completed', 'Cancelled'];
+        if (!allowed.includes(req.body.status)) return res.status(400).json({ error: 'Invalid viewing status.' });
+        const [rows] = await db.query(`SELECT v.*, p.title AS property_title FROM viewing_bookings v JOIN properties p ON p.id = v.property_id WHERE v.id = ?`, [req.params.id]);
+        if (!rows.length) return res.status(404).json({ error: 'Viewing booking not found.' });
+        const booking = { ...rows[0], status: req.body.status };
+        await db.query('UPDATE viewing_bookings SET status = ? WHERE id = ?', [booking.status, req.params.id]);
+        const notice = await sendViewingStatusEmail(booking, booking.property_title);
+        await audit('viewing.status_updated', req, { viewing_id: Number(req.params.id), status: booking.status });
+        res.json({ message: 'Viewing status updated and client notified.', ...(notice.success ? {} : { warning: 'Status saved, but the client email could not be delivered.' }) });
+    } catch (error) { res.status(500).json({ error: 'Unable to update viewing status.' }); }
 });
-
 app.get('/api/dashboard', authenticateAdmin, async (req, res) => {
     try {
         const [[propertyTotal]] = await db.query('SELECT COUNT(*) AS count FROM properties');
@@ -851,6 +928,16 @@ app.get('/api/dashboard', authenticateAdmin, async (req, res) => {
     } catch (error) { res.status(500).json({ error: 'Failed to fetch dashboard metrics.' }); }
 });
 
+app.get('/api/reports/overview', authenticateAdmin, async (req, res) => {
+    try {
+        const [[inventory]] = await db.query(`SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'Available' THEN 1 ELSE 0 END) AS available, COALESCE(SUM(price), 0) AS listed_value FROM properties`);
+        const [[inquiries]] = await db.query(`SELECT COUNT(*) AS total, SUM(CASE WHEN created_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS last_30_days FROM inquiries`);
+        const [[viewings]] = await db.query(`SELECT COUNT(*) AS total, SUM(CASE WHEN status = 'Confirmed' THEN 1 ELSE 0 END) AS confirmed, SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) AS completed FROM viewing_bookings`);
+        const [byCategory] = await db.query('SELECT category, COUNT(*) AS count FROM properties GROUP BY category ORDER BY count DESC');
+        const [pipeline] = await db.query('SELECT status, COUNT(*) AS count FROM inquiries GROUP BY status ORDER BY count DESC');
+        res.json({ inventory, inquiries, viewings, by_category: byCategory, pipeline });
+    } catch (error) { res.status(500).json({ error: 'Failed to fetch overview reports.' }); }
+});
 app.get('/api/analytics/listings', authenticateAdmin, async (req, res) => {
     try {
         const [rows] = await db.query(`SELECT p.id, p.title, p.category,
@@ -893,17 +980,16 @@ app.post('/api/inquiries/:id/reply', authenticateAdmin, async (req, res) => {
         const inquiry = inquiries[0];
         const replyToken = crypto.randomBytes(32).toString('hex');
         await db.query('UPDATE inquiries SET client_reply_token = ? WHERE id = ?', [replyToken, inquiryId]);
-        const publicBaseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
-        const replyUrl = `${publicBaseUrl}/client-reply.html?token=${replyToken}`;
-        const emailResult = await sendInquiryReplyEmail(inquiry.customer_email, inquiry.customer_name, replyMessage, replyUrl);
-        if (!emailResult.success) {
-            return res.status(500).json({ error: 'Failed to send email reply.' });
-        }
-
+        
+        // Save the conversation reply first so it's always recorded
         await db.query(`
             INSERT INTO inquiry_conversations (inquiry_id, sender, message)
             VALUES (?, ?, ?)
-        `, [Number(inquiryId), 'admin', replyMessage]);
+        `, [Number(inquiryId), 'admin', replyMessage.trim()]);
+
+        const publicBaseUrl = process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+        const replyUrl = `${publicBaseUrl}/client-reply.html?token=${replyToken}`;
+        const emailResult = await sendInquiryReplyEmail(inquiry.customer_email, inquiry.customer_name, replyMessage, replyUrl);
 
         const [historyRows] = await db.query(`
             SELECT sender, message, created_at
@@ -912,7 +998,15 @@ app.post('/api/inquiries/:id/reply', authenticateAdmin, async (req, res) => {
             ORDER BY created_at ASC
         `, [Number(inquiryId)]);
 
-        res.json({ message: 'Reply sent successfully.', history: historyRows });
+        if (!emailResult.success) {
+            res.json({ 
+                message: 'Reply saved to system, but email notification failed.', 
+                warning: emailResult.error || 'Mail delivery failed.', 
+                history: historyRows 
+            });
+        } else {
+            res.json({ message: 'Reply sent successfully.', history: historyRows });
+        }
     } catch (error) {
         console.error('Error sending inquiry reply:', error);
         res.status(500).json({ error: 'Failed to send reply' });
