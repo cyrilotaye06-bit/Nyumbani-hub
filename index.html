@@ -432,6 +432,32 @@
     .feature-card:hover .feature-card__link { color: #9a7800; }
     @media(max-width:768px) { header { padding: 15px 5%; align-items: flex-start; gap: 12px; } .logo { font-size: 23px; white-space: nowrap; } nav { display: flex; overflow-x: auto; gap: 16px; padding-bottom: 4px; } nav a { margin-left: 0; white-space: nowrap; font-size: 14px; } .hero { min-height: auto; height: auto; padding: 72px 20px; } .hero-content h1 { font-size: 38px; } .feature-hub { padding: 52px 6%; } section { padding: 60px 6%; } .section-title { margin-bottom: 30px; } .section-title h2 { font-size: 31px; } .inquiry-card { text-align: left; } }
 
+
+    /* 3D landing scene */
+    .hero { position: relative; overflow: hidden; isolation: isolate; perspective: 1200px; background-position: center; }
+    .hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at 18% 20%, rgba(255, 215, 0, .28), transparent 28%), radial-gradient(circle at 82% 78%, rgba(78, 133, 220, .34), transparent 30%); mix-blend-mode: screen; }
+    .hero-content { position: relative; z-index: 3; max-width: 1040px; padding: 34px; border: 1px solid rgba(255,255,255,.22); border-radius: 24px; background: rgba(11, 28, 57, .42); box-shadow: 0 28px 70px rgba(0,0,0,.3); backdrop-filter: blur(8px); transform: rotateX(var(--hero-rotate-x, 0deg)) rotateY(var(--hero-rotate-y, 0deg)); transition: transform .2s ease-out; }
+    .hero-scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; transform-style: preserve-3d; }
+    .scene-card { position: absolute; width: 220px; min-height: 145px; border: 1px solid rgba(255,255,255,.45); border-radius: 18px; box-shadow: 0 24px 50px rgba(0,0,0,.35); background-size: cover; background-position: center; overflow: hidden; transform-style: preserve-3d; }
+    .scene-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, rgba(255,255,255,.32), transparent 45%, rgba(11,28,57,.48)); }
+    .scene-card--left { left: 6%; top: 23%; background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop'); transform: translate3d(var(--scene-left-x, 0px), var(--scene-left-y, 0px), 90px) rotateY(24deg) rotateZ(-8deg); }
+    .scene-card--right { right: 6%; bottom: 16%; background-image: url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=800&auto=format&fit=crop'); transform: translate3d(var(--scene-right-x, 0px), var(--scene-right-y, 0px), 130px) rotateY(-25deg) rotateZ(7deg); }
+    .scene-orb { position: absolute; width: 130px; height: 130px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff6ae, #ffd700 35%, #a77700 72%); box-shadow: 0 20px 45px rgba(255, 215, 0, .35); left: 13%; bottom: 12%; transform: translate3d(var(--orb-x, 0px), var(--orb-y, 0px), 180px); }
+    .scene-ring { position: absolute; width: 190px; height: 190px; border: 16px solid rgba(255,255,255,.24); border-radius: 50%; right: 13%; top: 16%; transform: translate3d(var(--ring-x, 0px), var(--ring-y, 0px), 40px) rotateX(66deg) rotateZ(-25deg); }
+    @media (prefers-reduced-motion: reduce) { .hero-content, .scene-card, .scene-orb, .scene-ring { transition: none; transform: none; } }
+    @media(max-width:768px) { .hero-content { padding: 22px 16px; } .scene-card { width: 126px; min-height: 88px; opacity: .76; } .scene-card--left { left: -32px; top: 13%; } .scene-card--right { right: -32px; bottom: 10%; } .scene-orb { width: 72px; height: 72px; left: 6%; bottom: 5%; } .scene-ring { width: 104px; height: 104px; right: 4%; top: 6%; border-width: 10px; } }
+
+
+    /* Full-screen landing layout */
+    .hero { min-height: 100svh; height: 100vh; }
+    .hero-landing-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+    .hero-landing-actions .btn:last-child { background: rgba(255,255,255,.92); color: #0b1c39; }
+    .search-section { padding-top: 64px; padding-bottom: 64px; background: #eef2f6; }
+    .search-section .search-box { box-shadow: 0 14px 32px rgba(11,28,57,.12); }
+    .search-section #saved-search-message { color: #0b1c39; text-align: center; }
+    .search-section .inquiry-card { margin: 28px auto 0; text-align: left; }
+    @media(max-width:768px) { .hero { min-height: 100svh; height: 100svh; } }
+
 </style>
 </head>
 <body>
@@ -455,10 +481,29 @@
 
   <!-- HERO SECTION -->
   <section class="hero">
+    <div class="hero-scene" aria-hidden="true">
+      <div class="scene-card scene-card--left"></div>
+      <div class="scene-card scene-card--right"></div>
+      <div class="scene-orb"></div>
+      <div class="scene-ring"></div>
+    </div>
     <div class="hero-content">
       <h1 id="hero-title">Find Your Dream Property</h1>
       <p id="hero-subtitle">Rent, Buy, Resell & Book Luxury Apartments and Homes</p>
 
+      <div class="hero-landing-actions">
+        <a class="btn" href="#property-search">Start Your Search</a>
+        <a class="btn" href="#feature-hub">Explore Services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPERTY SEARCH AND CONTACT -->
+  <section id="property-search" class="search-section" aria-labelledby="property-search-title">
+    <div class="section-title">
+      <h2 id="property-search-title">Find the Right Property</h2>
+      <p>Search available homes, save your preferences, or contact our team for tailored help.</p>
+    </div>
       <form id="home-search-form" class="search-box">
         <input id="search-keyword" type="text" aria-label="Search by location or keyword">
         
@@ -518,9 +563,7 @@
           </div>
         </form>
       </div>
-    </div>
   </section>
-
 
   <!-- FEATURE HUB -->
   <section class="feature-hub" aria-labelledby="feature-hub-title">
@@ -952,6 +995,29 @@
 
     document.getElementById('backToTop')?.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const hero = document.querySelector('.hero');
+      if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      hero.addEventListener('pointermove', event => {
+        const bounds = hero.getBoundingClientRect();
+        const x = ((event.clientX - bounds.left) / bounds.width - .5) * 2;
+        const y = ((event.clientY - bounds.top) / bounds.height - .5) * 2;
+        hero.style.setProperty('--hero-rotate-x', (-y * .7).toFixed(2) + 'deg');
+        hero.style.setProperty('--hero-rotate-y', (x * .7).toFixed(2) + 'deg');
+        hero.style.setProperty('--scene-left-x', (-x * 14).toFixed(1) + 'px');
+        hero.style.setProperty('--scene-left-y', (-y * 10).toFixed(1) + 'px');
+        hero.style.setProperty('--scene-right-x', (x * 16).toFixed(1) + 'px');
+        hero.style.setProperty('--scene-right-y', (y * 12).toFixed(1) + 'px');
+        hero.style.setProperty('--orb-x', (-x * 24).toFixed(1) + 'px');
+        hero.style.setProperty('--orb-y', (y * 20).toFixed(1) + 'px');
+        hero.style.setProperty('--ring-x', (x * 20).toFixed(1) + 'px');
+        hero.style.setProperty('--ring-y', (-y * 18).toFixed(1) + 'px');
+      });
+      hero.addEventListener('pointerleave', () => {
+        ['--hero-rotate-x','--hero-rotate-y','--scene-left-x','--scene-left-y','--scene-right-x','--scene-right-y','--orb-x','--orb-y','--ring-x','--ring-y'].forEach(property => hero.style.removeProperty(property));
+      });
     });
   </script>
 
