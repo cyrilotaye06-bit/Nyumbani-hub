@@ -419,6 +419,19 @@
       }
     }
       .skip-link{position:fixed;left:12px;top:-60px;z-index:2000;background:#fff;color:#0b1c39;padding:10px 14px;border-radius:8px;font-weight:700}.skip-link:focus{top:12px;outline:3px solid #facc15}.search-box :focus-visible,.btn:focus-visible{outline:3px solid #facc15;outline-offset:3px}@media(max-width:768px){.search-box{position:sticky;top:0;z-index:20;padding:14px!important}.property-card img{aspect-ratio:16/10;object-fit:cover}}
+
+    /* Home-page feature hub */
+    .feature-hub { padding: 64px 8%; background: #fff; }
+    .feature-grid, .why-us-grid, .neighborhood-grid, .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+    .feature-card, .why-us-card, .neighborhood-card, .market-card { display: block; min-height: 100%; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 6px 18px rgba(11, 28, 57, .06); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .feature-card:hover, .why-us-card:hover, .neighborhood-card:hover, .market-card:hover { transform: translateY(-4px); border-color: #ffd700; box-shadow: 0 12px 26px rgba(11, 28, 57, .12); }
+    .feature-card__eyebrow { display: inline-block; margin-bottom: 12px; color: #0b1c39; background: #fff7cc; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .feature-card h3, .why-us-card h3, .neighborhood-card h3, .market-card h3 { color: #0b1c39; margin-bottom: 10px; font-size: 20px; }
+    .feature-card p, .why-us-card p, .neighborhood-card p, .market-card p { color: #64748b; line-height: 1.6; }
+    .feature-card__link { display: inline-block; margin-top: 16px; color: #0b1c39; font-weight: 700; }
+    .feature-card:hover .feature-card__link { color: #9a7800; }
+    @media(max-width:768px) { header { padding: 15px 5%; align-items: flex-start; gap: 12px; } .logo { font-size: 23px; white-space: nowrap; } nav { display: flex; overflow-x: auto; gap: 16px; padding-bottom: 4px; } nav a { margin-left: 0; white-space: nowrap; font-size: 14px; } .hero { min-height: auto; height: auto; padding: 72px 20px; } .hero-content h1 { font-size: 38px; } .feature-hub { padding: 52px 6%; } section { padding: 60px 6%; } .section-title { margin-bottom: 30px; } .section-title h2 { font-size: 31px; } .inquiry-card { text-align: left; } }
+
 </style>
 </head>
 <body>
@@ -505,6 +518,21 @@
           </div>
         </form>
       </div>
+    </div>
+  </section>
+
+
+  <!-- FEATURE HUB -->
+  <section class="feature-hub" aria-labelledby="feature-hub-title">
+    <div class="section-title"><h2 id="feature-hub-title">Explore Nyumbani Hub</h2><p>Choose exactly what you need—from finding a home to managing your property journey.</p></div>
+    <div class="feature-grid">
+      <a class="feature-card" href="rentals.html"><span class="feature-card__eyebrow">Find a home</span><h3>Rentals</h3><p>Browse long-term homes and apartments that match your location, budget, and lifestyle.</p><span class="feature-card__link">Explore rentals →</span></a>
+      <a class="feature-card" href="property.html"><span class="feature-card__eyebrow">Buy</span><h3>Buy Property</h3><p>Discover homes and investments with support through every step of your purchase.</p><span class="feature-card__link">View properties →</span></a>
+      <a class="feature-card" href="bnb.html"><span class="feature-card__eyebrow">Short stay</span><h3>BnB Stays</h3><p>Book comfortable, verified stays for business trips, holidays, and weekends away.</p><span class="feature-card__link">Find a stay →</span></a>
+      <a class="feature-card" href="resales.html"><span class="feature-card__eyebrow">Sell &amp; invest</span><h3>Resales</h3><p>Find resale opportunities or get help marketing an apartment you are ready to sell.</p><span class="feature-card__link">Explore resales →</span></a>
+      <a class="feature-card" href="agents.html"><span class="feature-card__eyebrow">Get guidance</span><h3>Meet Our Agents</h3><p>Connect with a local property professional for tailored advice and viewings.</p><span class="feature-card__link">Meet the team →</span></a>
+      <a class="feature-card" href="tools.html"><span class="feature-card__eyebrow">Plan smarter</span><h3>Property Tools</h3><p>Use practical tools to compare options and make confident decisions.</p><span class="feature-card__link">Open tools →</span></a>
+      <a class="feature-card" href="favorites.html"><span class="feature-card__eyebrow">Keep track</span><h3>Saved Favorites</h3><p>Return to the homes you like most and keep your shortlist in one place.</p><span class="feature-card__link">View favorites →</span></a>
     </div>
   </section>
 
